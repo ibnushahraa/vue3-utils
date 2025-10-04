@@ -1,0 +1,16 @@
+{
+  "name": "vue3-utils",
+  "version": "1.0.0",
+  "description": "Vue 3 utility composables",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["vue3", "composables", "utilities"],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  }
+}
