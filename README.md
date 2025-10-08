@@ -17,9 +17,20 @@ A composable for countdown timer functionality.
 ```javascript
 import { useCountdown } from "vue3-utils";
 
-// In your component
-const expiredTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
-const { hours, minutes, seconds, remaining } = useCountdown(expiredTime);
+const expiredAt = Math.floor(Date.now() / 1000) + 3600; // 1 jam dari sekarang
+
+const { hours, minutes, seconds, remaining, onSuccess, onExpired } =
+  useCountdown(expiredAt, {
+    onExpired: () => {
+      console.log("Waktu habis!");
+    },
+  });
+
+// Hentikan timer manual
+onSuccess();
+
+// Trigger expired manual
+onExpired();
 ```
 
 ## License
