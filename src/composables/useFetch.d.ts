@@ -9,7 +9,7 @@ export interface UseFetchReturn<T = any> {
 }
 
 export interface UseFetchOptions {
-  cacheTime?: number; // waktu cache dalam ms, default 0 (non-cache)
+  cacheTime?: number; // waktu cache dalam milidetik, default 0 (tanpa cache)
 }
 
 export function useFetch<T = any>(

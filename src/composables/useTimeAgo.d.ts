@@ -5,7 +5,7 @@ import { ComputedRef } from "vue";
  */
 export interface UseTimeAgoOptions {
   /**
-   * Locale bahasa, misalnya 'id', 'en', 'ms', dll.
+   * Locale bahasa, contoh: 'id', 'en', 'ms', dll.
    * Default: 'id'
    */
   locale?: string;
@@ -16,7 +16,7 @@ export interface UseTimeAgoOptions {
  */
 export interface UseTimeAgoReturn {
   /**
-   * Teks reaktif berisi hasil format waktu relatif, contoh: "3 jam lalu"
+   * Teks reaktif berisi hasil format waktu relatif, contoh: "3 jam yang lalu"
    */
   text: ComputedRef<string>;
 }

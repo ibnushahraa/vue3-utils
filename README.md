@@ -1,30 +1,37 @@
 # vue3-utils
 
-Vue 3 utility composables
+Kumpulan composable utility untuk Vue 3
 
-## Installation
+## 📦 Instalasi
 
 ```bash
 npm install github:ibnushahraa/vue3-utils
 ```
 
-## Usage
+## 🚀 Usage
 
 ### useCountdown
 
-A composable for countdown timer functionality.
+Composable untuk fungsionalitas timer hitung mundur.
 
 ```javascript
 import { useCountdown } from "vue3-utils";
 
 const expiredAt = Math.floor(Date.now() / 1000) + 3600; // 1 jam dari sekarang
 
-const { hours, minutes, seconds, remaining, onSuccess, onExpired, triggerSuccess } =
-  useCountdown(expiredAt, {
-    onExpired: () => {
-      console.log("Waktu habis!");
-    },
-  });
+const {
+  hours,
+  minutes,
+  seconds,
+  remaining,
+  onSuccess,
+  onExpired,
+  triggerSuccess,
+} = useCountdown(expiredAt, {
+  onExpired: () => {
+    console.log("Waktu habis!");
+  },
+});
 
 // Set handler untuk event success (opsional)
 onSuccess(() => {
@@ -40,13 +47,13 @@ onExpired(() => {
 triggerSuccess();
 ```
 
-#### Parameters
+#### Parameter
 
 - `expiredUnix` (number): Unix timestamp kapan countdown berakhir
-- `options` (object, optional):
+- `options` (object, opsional):
   - `onExpired` (function): Callback yang dipanggil saat countdown mencapai 0
 
-#### Returns
+#### Return
 
 - `hours` (computed): Jam tersisa (format: "00")
 - `minutes` (computed): Menit tersisa (format: "00")
@@ -58,7 +65,7 @@ triggerSuccess();
 
 ### useTimeAgo
 
-A composable for displaying relative time in multiple languages with automatic updates.
+Composable untuk menampilkan waktu relatif dalam berbagai bahasa dengan pembaruan otomatis.
 
 ```javascript
 import { useTimeAgo } from "vue3-utils";
@@ -80,16 +87,16 @@ console.log(timeAgoMs.value); // "1 tahun yang lalu"
 // <p>{{ text }}</p>
 ```
 
-#### Parameters
+#### Parameter
 
 - `date` (Date|string|number): Tanggal target yang akan dibandingkan dengan waktu sekarang
-- `locale` (string, optional, default: "id"): Kode bahasa ISO 639-1 ('id', 'en', 'ms', 'ja', dll)
+- `locale` (string, opsional, default: "id"): Kode bahasa ISO 639-1 ('id', 'en', 'ms', 'ja', dll)
 
-#### Returns
+#### Return
 
 - `text` (computed): Teks waktu relatif yang otomatis update setiap menit
 
-#### Features
+#### Fitur
 
 - **Multi-bahasa**: Mendukung semua locale yang didukung oleh Intl.RelativeTimeFormat
 - **Auto-update**: Teks otomatis update setiap 1 menit
@@ -98,7 +105,7 @@ console.log(timeAgoMs.value); // "1 tahun yang lalu"
 
 ### useFetch
 
-A composable for HTTP fetch with automatic caching functionality.
+Composable untuk HTTP fetch dengan fungsionalitas caching otomatis.
 
 ```javascript
 import { useFetch } from "vue3-utils";
@@ -112,46 +119,50 @@ const { data, error, loading } = useFetch("https://api.example.com/users");
 // <div v-else>{{ data }}</div>
 
 // Fetch dengan cache 5 menit
-const { data: posts, error: postsError, loading: postsLoading, refetch } =
-  useFetch(
-    "https://api.example.com/posts",
-    {
-      method: "GET",
-      headers: { "Content-Type": "application/json" }
-    },
-    { cacheTime: 5 * 60 * 1000 } // 5 menit
-  );
+const {
+  data: posts,
+  error: postsError,
+  loading: postsLoading,
+  refetch,
+} = useFetch(
+  "https://api.example.com/posts",
+  {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  },
+  { cacheTime: 5 * 60 * 1000 } // 5 menit
+);
 
 // Refetch manual (akan menggunakan cache jika masih berlaku)
 refetch();
 
 // POST request tanpa cache
-const { data: result, error: postError, loading: posting } =
-  useFetch(
-    "https://api.example.com/posts",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "Hello", content: "World" })
-    }
-  );
+const {
+  data: result,
+  error: postError,
+  loading: posting,
+} = useFetch("https://api.example.com/posts", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ title: "Hello", content: "World" }),
+});
 ```
 
-#### Parameters
+#### Parameter
 
 - `url` (string): URL endpoint yang akan di-fetch
-- `options` (object, optional): Opsi fetch API standard (method, headers, body, dll)
-- `config` (object, optional):
+- `options` (object, opsional): Opsi fetch API standard (method, headers, body, dll)
+- `config` (object, opsional):
   - `cacheTime` (number, default: 0): Waktu cache dalam milidetik (0 = tidak menggunakan cache)
 
-#### Returns
+#### Return
 
 - `data` (ref): Data hasil fetch (null jika belum ada data atau error)
 - `error` (ref): Error object jika terjadi error (null jika tidak ada error)
 - `loading` (ref): Status loading (true saat sedang fetch)
 - `refetch` (function): Method untuk melakukan fetch ulang secara manual
 
-#### Features
+#### Fitur
 
 - **Auto-fetch**: Fetch otomatis saat composable dipanggil
 - **Reactive**: Semua state (data, error, loading) adalah reactive
@@ -159,6 +170,6 @@ const { data: result, error: postError, loading: posting } =
 - **Auto-cleanup**: Cache otomatis dihapus setelah waktu expired
 - **Manual refetch**: Dapat melakukan fetch ulang secara manual
 
-## License
+## 📄 License
 
-MIT
+[MIT](LICENSE) © 2025
