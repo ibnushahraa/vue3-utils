@@ -56,6 +56,109 @@ triggerSuccess();
 - `onSuccess` (function): Set handler untuk event success
 - `triggerSuccess` (function): Trigger success secara manual dan hentikan timer
 
+### useTimeAgo
+
+A composable for displaying relative time in multiple languages with automatic updates.
+
+```javascript
+import { useTimeAgo } from "vue3-utils";
+
+// Bahasa Indonesia (default)
+const { text: timeAgoId } = useTimeAgo(new Date("2024-01-01"));
+console.log(timeAgoId.value); // "10 bulan yang lalu"
+
+// Bahasa Inggris
+const { text: timeAgoEn } = useTimeAgo("2024-12-31", "en");
+console.log(timeAgoEn.value); // "in 2 months"
+
+// Dengan Unix timestamp (Bahasa Melayu)
+const timestamp = 1672531200000;
+const { text: timeAgoMs } = useTimeAgo(timestamp, "ms");
+console.log(timeAgoMs.value); // "1 tahun yang lalu"
+
+// Gunakan di template
+// <p>{{ text }}</p>
+```
+
+#### Parameters
+
+- `date` (Date|string|number): Tanggal target yang akan dibandingkan dengan waktu sekarang
+- `locale` (string, optional, default: "id"): Kode bahasa ISO 639-1 ('id', 'en', 'ms', 'ja', dll)
+
+#### Returns
+
+- `text` (computed): Teks waktu relatif yang otomatis update setiap menit
+
+#### Features
+
+- **Multi-bahasa**: Mendukung semua locale yang didukung oleh Intl.RelativeTimeFormat
+- **Auto-update**: Teks otomatis update setiap 1 menit
+- **Shared timer**: Menggunakan timer global yang dibagikan antar instance untuk efisiensi performa
+- **Format otomatis**: Memilih unit waktu yang paling sesuai (detik, menit, jam, hari, bulan, tahun)
+
+### useFetch
+
+A composable for HTTP fetch with automatic caching functionality.
+
+```javascript
+import { useFetch } from "vue3-utils";
+
+// Fetch tanpa cache
+const { data, error, loading } = useFetch("https://api.example.com/users");
+
+// Gunakan di template
+// <div v-if="loading">Loading...</div>
+// <div v-else-if="error">Error: {{ error.message }}</div>
+// <div v-else>{{ data }}</div>
+
+// Fetch dengan cache 5 menit
+const { data: posts, error: postsError, loading: postsLoading, refetch } =
+  useFetch(
+    "https://api.example.com/posts",
+    {
+      method: "GET",
+      headers: { "Content-Type": "application/json" }
+    },
+    { cacheTime: 5 * 60 * 1000 } // 5 menit
+  );
+
+// Refetch manual (akan menggunakan cache jika masih berlaku)
+refetch();
+
+// POST request tanpa cache
+const { data: result, error: postError, loading: posting } =
+  useFetch(
+    "https://api.example.com/posts",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Hello", content: "World" })
+    }
+  );
+```
+
+#### Parameters
+
+- `url` (string): URL endpoint yang akan di-fetch
+- `options` (object, optional): Opsi fetch API standard (method, headers, body, dll)
+- `config` (object, optional):
+  - `cacheTime` (number, default: 0): Waktu cache dalam milidetik (0 = tidak menggunakan cache)
+
+#### Returns
+
+- `data` (ref): Data hasil fetch (null jika belum ada data atau error)
+- `error` (ref): Error object jika terjadi error (null jika tidak ada error)
+- `loading` (ref): Status loading (true saat sedang fetch)
+- `refetch` (function): Method untuk melakukan fetch ulang secara manual
+
+#### Features
+
+- **Auto-fetch**: Fetch otomatis saat composable dipanggil
+- **Reactive**: Semua state (data, error, loading) adalah reactive
+- **Caching**: Cache otomatis dengan waktu expired yang dapat dikonfigurasi
+- **Auto-cleanup**: Cache otomatis dihapus setelah waktu expired
+- **Manual refetch**: Dapat melakukan fetch ulang secara manual
+
 ## License
 
 MIT

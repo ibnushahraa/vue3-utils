@@ -3,6 +3,35 @@ import { ref, watchEffect } from "vue";
 
 const cache = new Map();
 
+/**
+ * Composable untuk melakukan HTTP fetch dengan fitur caching otomatis.
+ * Data akan di-cache berdasarkan URL dan waktu cache yang ditentukan.
+ *
+ * @param {string} url - URL endpoint yang akan di-fetch
+ * @param {Object} [options={}] - Opsi fetch API (method, headers, body, dll)
+ * @param {Object} [config={}] - Konfigurasi tambahan
+ * @param {number} [config.cacheTime=0] - Waktu cache dalam milidetik (0 = tidak menggunakan cache)
+ * @returns {Object} Object yang berisi state dan method fetch
+ * @returns {import('vue').Ref<any>} returns.data - Data hasil fetch (null jika belum ada data)
+ * @returns {import('vue').Ref<Error|null>} returns.error - Error object jika terjadi error
+ * @returns {import('vue').Ref<boolean>} returns.loading - Status loading (true saat sedang fetch)
+ * @returns {Function} returns.refetch - Method untuk melakukan fetch ulang secara manual
+ *
+ * @example
+ * // Fetch tanpa cache
+ * const { data, error, loading } = useFetch('https://api.example.com/users');
+ *
+ * @example
+ * // Fetch dengan cache 5 menit
+ * const { data, error, loading, refetch } = useFetch(
+ *   'https://api.example.com/posts',
+ *   { method: 'GET' },
+ *   { cacheTime: 5 * 60 * 1000 }
+ * );
+ *
+ * // Refetch manual
+ * refetch();
+ */
 export function useFetch(url, options = {}, { cacheTime = 0 } = {}) {
   const data = ref(null);
   const error = ref(null);
