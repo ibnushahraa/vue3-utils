@@ -1,1 +1,3 @@
-export { useCountdown } from './composables/useCountdown';
+export { useCountdown } from "./composables/useCountdown";
+export { useTimeAgo } from "./composables/useTimeAgo";
+export { useFetch } from "./composables/useFetch";
