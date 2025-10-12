@@ -8,6 +8,20 @@ Kumpulan composable utility untuk Vue 3
 npm install github:ibnushahraa/vue3-utils
 ```
 
+### Update Library
+
+Jika ada penambahan fitur baru, update library dengan perintah:
+
+```bash
+npm update vue3-utils
+```
+
+Atau untuk memaksa update ke versi terbaru:
+
+```bash
+npm install github:ibnushahraa/vue3-utils@latest
+```
+
 ## 🚀 Usage
 
 ### useCountdown
