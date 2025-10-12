@@ -20,3 +20,9 @@ export { useTimeAgo } from "./composables/useTimeAgo.js";
  * @see {@link module:composables/useFetch}
  */
 export { useFetch } from "./composables/useFetch.js";
+
+/**
+ * Composable untuk animasi count up
+ * @see {@link module:composables/useCountUp}
+ */
+export { useCountUp } from "./composables/useCountUp.js";

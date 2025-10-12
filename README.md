@@ -103,6 +103,78 @@ console.log(timeAgoMs.value); // "1 tahun yang lalu"
 - **Shared timer**: Menggunakan timer global yang dibagikan antar instance untuk efisiensi performa
 - **Format otomatis**: Memilih unit waktu yang paling sesuai (detik, menit, jam, hari, bulan, tahun)
 
+### useCountUp
+
+Composable untuk animasi count up seperti countup.js.
+
+```javascript
+import { useCountUp } from "vue3-utils";
+
+// Basic usage - animasi dari 0 ke 1000
+const { displayValue, start } = useCountUp(1000);
+start();
+
+// Dengan opsi lengkap
+const counter = useCountUp(5000, {
+  startValue: 0,
+  duration: 3000, // durasi dalam ms
+  decimalPlaces: 2,
+  separator: ",", // separator ribuan
+  decimal: ".",
+  prefix: "Rp ",
+  suffix: "",
+  useEasing: true,
+  onComplete: () => {
+    console.log("Animasi selesai!");
+  },
+});
+
+// Kontrol animasi
+counter.start(); // mulai animasi
+counter.pause(); // pause animasi
+counter.resume(); // lanjutkan animasi
+counter.reset(); // reset ke nilai awal
+
+// Update ke nilai baru (animasi dari nilai saat ini)
+counter.update(10000);
+
+// Gunakan di template
+// <h1>{{ displayValue }}</h1>
+```
+
+#### Parameter
+
+- `endValue` (number): Nilai akhir yang ingin dicapai
+- `options` (object, opsional):
+  - `startValue` (number, default: 0): Nilai awal
+  - `duration` (number, default: 2000): Durasi animasi dalam milidetik
+  - `decimalPlaces` (number, default: 0): Jumlah angka desimal
+  - `separator` (string, default: ""): Separator ribuan (contoh: ",")
+  - `decimal` (string, default: "."): Separator desimal
+  - `prefix` (string, default: ""): Prefix sebelum angka (contoh: "$")
+  - `suffix` (string, default: ""): Suffix setelah angka (contoh: " USD")
+  - `useEasing` (boolean, default: true): Gunakan easing function
+  - `easingFn` (function): Custom easing function
+  - `onComplete` (function): Callback saat animasi selesai
+
+#### Return
+
+- `displayValue` (ref): Nilai yang sudah diformat sebagai string (untuk ditampilkan)
+- `currentValue` (ref): Nilai numerik saat ini
+- `start` (function): Mulai animasi dari awal
+- `pause` (function): Pause animasi
+- `resume` (function): Lanjutkan animasi yang di-pause
+- `reset` (function): Reset ke nilai awal
+- `update` (function): Update ke nilai akhir baru dengan animasi
+
+#### Fitur
+
+- **Animasi halus**: Menggunakan requestAnimationFrame untuk performa optimal
+- **Easing function**: Mendukung easing default (easeOutExpo) atau custom easing
+- **Format angka**: Mendukung separator ribuan, desimal, prefix, dan suffix
+- **Kontrol penuh**: Bisa start, pause, resume, reset, dan update nilai
+- **Auto-cleanup**: Otomatis membersihkan animasi saat component unmount
+
 ### useFetch
 
 Composable untuk HTTP fetch dengan fungsionalitas caching otomatis.
