@@ -22,5 +22,8 @@
   "homepage": "https://github.com/ibnushahraa/vue3-utils#readme",
   "peerDependencies": {
     "vue": "^3.0.0"
+  },
+  "dependencies": {
+    "ofetch": "^1.4.1"
   }
 }

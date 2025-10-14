@@ -10,9 +10,11 @@ Kumpulan composable dan wrapper utility untuk Vue 3
   - [useTimeAgo](#usetimeago)
   - [useCountUp](#usecountup)
   - [useTypewriter](#usetypewriter)
-  - [useFetch](#usefetch)
 - [🔧 Wrapper](#-wrapper)
   - [useEventBus](#useeventbus)
+  - [useFetch](#usefetch)
+  - [useAuthGuard](#useauthguard)
+  - [useFetchServer](#usefetchserver)
 - [📄 License](#-license)
 
 ## 📦 Instalasi
@@ -297,73 +299,6 @@ typewriter.updateTexts(["New text 1", "New text 2"]);
 - **Event callbacks**: Callback untuk setiap event penting
 - **Auto-cleanup**: Otomatis membersihkan timeout dan interval saat unmount
 
-### useFetch
-
-Composable untuk HTTP fetch dengan fungsionalitas caching otomatis.
-
-```javascript
-import { useFetch } from "vue3-utils";
-
-// Fetch tanpa cache
-const { data, error, loading } = useFetch("https://api.example.com/users");
-
-// Gunakan di template
-// <div v-if="loading">Loading...</div>
-// <div v-else-if="error">Error: {{ error.message }}</div>
-// <div v-else>{{ data }}</div>
-
-// Fetch dengan cache 5 menit
-const {
-  data: posts,
-  error: postsError,
-  loading: postsLoading,
-  refetch,
-} = useFetch(
-  "https://api.example.com/posts",
-  {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  },
-  { cacheTime: 5 * 60 * 1000 } // 5 menit
-);
-
-// Refetch manual (akan menggunakan cache jika masih berlaku)
-refetch();
-
-// POST request tanpa cache
-const {
-  data: result,
-  error: postError,
-  loading: posting,
-} = useFetch("https://api.example.com/posts", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ title: "Hello", content: "World" }),
-});
-```
-
-#### Parameter
-
-- `url` (string): URL endpoint yang akan di-fetch
-- `options` (object, opsional): Opsi fetch API standard (method, headers, body, dll)
-- `config` (object, opsional):
-  - `cacheTime` (number, default: 0): Waktu cache dalam milidetik (0 = tidak menggunakan cache)
-
-#### Return
-
-- `data` (ref): Data hasil fetch (null jika belum ada data atau error)
-- `error` (ref): Error object jika terjadi error (null jika tidak ada error)
-- `loading` (ref): Status loading (true saat sedang fetch)
-- `refetch` (function): Method untuk melakukan fetch ulang secara manual
-
-#### Fitur
-
-- **Auto-fetch**: Fetch otomatis saat composable dipanggil
-- **Reactive**: Semua state (data, error, loading) adalah reactive
-- **Caching**: Cache otomatis dengan waktu expired yang dapat dikonfigurasi
-- **Auto-cleanup**: Cache otomatis dihapus setelah waktu expired
-- **Manual refetch**: Dapat melakukan fetch ulang secara manual
-
 ## 🔧 Wrapper
 
 ### useEventBus
@@ -406,6 +341,294 @@ bus.off("event", handler);
 - **Multiple listeners**: Satu event bisa memiliki beberapa listener
 - **Listener control**: Daftarkan, kirim, dan hapus listener dengan mudah
 - **Listener sekali jalan**: Dukungan untuk listener yang hanya dijalankan sekali
+
+### useFetch
+
+Wrapper untuk HTTP fetch dengan fungsionalitas caching otomatis dan request cancellation.
+
+```javascript
+import { useFetch } from "vue3-utils";
+
+// Basic - Fetch tanpa cache (auto fetch)
+const { data, error, loading } = useFetch("https://api.example.com/users");
+
+// Gunakan di template
+// <div v-if="loading">Loading...</div>
+// <div v-else-if="error">Error: {{ error.message }}</div>
+// <div v-else>{{ data }}</div>
+
+// Fetch dengan cache 5 menit
+const {
+  data: posts,
+  error: postsError,
+  loading: postsLoading,
+  refetch,
+  clearCache,
+} = useFetch(
+  "https://api.example.com/posts",
+  {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  },
+  { cacheTime: 5 * 60 * 1000 } // 5 menit
+);
+
+// Refetch manual (bypass cache)
+await refetch();
+
+// Clear cache untuk URL ini
+clearCache();
+
+// Fetch manual (tidak otomatis saat mount)
+const { data: searchResult, loading: searching, refetch: search } = useFetch(
+  "https://api.example.com/search",
+  {
+    method: "POST",
+    body: { query: "vue3" },
+  },
+  { immediate: false } // tidak auto fetch
+);
+
+// Trigger fetch secara manual
+await search();
+
+// POST request tanpa cache
+const {
+  data: result,
+  error: postError,
+  loading: posting,
+} = useFetch("https://api.example.com/posts", {
+  method: "POST",
+  body: { title: "Hello", content: "World" },
+});
+```
+
+#### Parameter
+
+- `url` (string): URL endpoint yang akan di-fetch
+- `options` (object, opsional): Opsi ofetch (method, headers, body, dll)
+- `config` (object, opsional):
+  - `cacheTime` (number, default: 0): Waktu cache dalam milidetik (0 = tidak menggunakan cache)
+  - `immediate` (boolean, default: true): Jalankan fetch otomatis saat composable dipanggil
+
+#### Return
+
+- `data` (ref): Data hasil fetch (null jika belum ada data atau error)
+- `error` (ref): Error object jika terjadi error (null jika tidak ada error)
+- `loading` (ref): Status loading (true saat sedang fetch)
+- `refetch` (function): Method untuk melakukan fetch ulang dengan bypass cache
+- `clearCache` (function): Method untuk menghapus cache entry untuk URL ini
+
+#### Fitur
+
+- **Auto-fetch**: Fetch otomatis saat composable dipanggil (configurable dengan `immediate`)
+- **Reactive**: Semua state (data, error, loading) adalah reactive
+- **Smart Caching**: Cache otomatis dengan TTL yang dapat dikonfigurasi
+- **Cache Size Limit**: Maximum 100 entries dengan LRU (Least Recently Used)
+- **Request Cancellation**: Otomatis cancel request sebelumnya dengan AbortController
+- **Memory Safe**: Auto cleanup saat component unmount (no memory leaks)
+- **Manual Control**: Refetch dan clear cache secara manual
+- **Cache Key**: Cache berdasarkan URL + method (GET:url vs POST:url)
+
+### useAuthGuard
+
+Wrapper untuk memeriksa status expirasi token dengan callback yang dapat dikonfigurasi.
+
+```javascript
+import { useAuthGuard } from "vue3-utils";
+
+const isTokenExpired = useAuthGuard();
+
+// Cek apakah token sudah expired
+const tokenExpTime = 1735689600; // Unix timestamp
+const isExpired = isTokenExpired(tokenExpTime, () => {
+  // Callback dipanggil jika token expired
+  console.log("Token expired!");
+  router.push("/login");
+});
+
+if (isExpired) {
+  console.log("Token sudah kedaluwarsa");
+}
+
+// Contoh di navigation guard
+router.beforeEach((to, from, next) => {
+  const isTokenExpired = useAuthGuard();
+  const tokenExpiration = localStorage.getItem("refreshTokenExpiration");
+
+  if (to.meta.requiresAuth) {
+    const expired = isTokenExpired(Number(tokenExpiration), () => {
+      // Token expired, redirect ke login
+      next("/login");
+    });
+
+    if (!expired) {
+      next(); // Token valid, lanjut
+    }
+  } else {
+    next();
+  }
+});
+
+// Contoh dengan auto refresh
+const checkAuth = () => {
+  const isTokenExpired = useAuthGuard();
+  const expTime = Number(localStorage.getItem("refreshTokenExpiration"));
+
+  const expired = isTokenExpired(expTime, async () => {
+    try {
+      // Coba refresh token
+      await refreshToken();
+    } catch (error) {
+      // Refresh gagal, logout
+      logout();
+    }
+  });
+
+  return !expired;
+};
+```
+
+#### Parameter
+
+- `refreshTokenExpiration` (number): Unix timestamp kapan token akan expired
+- `onExpiredCallback` (function): Callback yang dipanggil saat token sudah expired
+
+#### Return
+
+- `isTokenExpired` (function): Fungsi untuk cek apakah token expired
+  - Returns `true` jika token expired
+  - Returns `false` jika token masih valid
+
+#### Fitur
+
+- **Simple check**: Fungsi sederhana untuk cek expiration token
+- **Callback support**: Jalankan callback otomatis saat token expired
+- **Unix timestamp**: Menggunakan format Unix timestamp (seconds)
+- **Flexible**: Bisa digunakan di route guard, middleware, atau component
+
+#### Use Case
+
+Ideal untuk:
+
+- Navigation guard untuk protected routes
+- Auto refresh token check
+- Periodic token validation
+- Logout handler saat token expired
+
+### useFetchServer
+
+Wrapper untuk HTTP fetch dengan automatic token management dan refresh. Ideal untuk aplikasi dengan autentikasi JWT.
+
+```javascript
+import { useFetchServer } from "vue3-utils";
+
+// Basic usage dengan default config (localStorage)
+const { fetchWithAuth } = useFetchServer("https://api.example.com");
+
+// GET request
+const users = await fetchWithAuth("/users");
+
+// POST request
+const newUser = await fetchWithAuth("/users", {
+  method: "POST",
+  body: { name: "John Doe", email: "john@example.com" },
+});
+
+// Advanced - Custom token handlers
+const { fetchWithAuth, isRefreshing, clearTokens } = useFetchServer(
+  "https://api.example.com",
+  {
+    refreshTokenUrl: "/auth/refresh-token",
+    getToken: () => sessionStorage.getItem("accessToken"),
+    saveToken: (token) => sessionStorage.setItem("accessToken", token),
+    skipRefreshUrls: ["/auth/login", "/auth/register"],
+    onRefreshFailCallback: () => {
+      // Dipanggil saat refresh token gagal
+      clearTokens();
+      router.push("/login");
+    },
+  }
+);
+
+// Login request - tidak akan trigger auto refresh jika 401
+const loginResult = await fetchWithAuth("/auth/login", {
+  method: "POST",
+  body: { username: "user", password: "pass" },
+}).catch((error) => {
+  // Handle login error (wrong password, etc)
+  console.error("Login failed:", error);
+});
+
+// Gunakan dalam composable/component
+const fetchUsers = async () => {
+  try {
+    const data = await fetchWithAuth("/users");
+    console.log(data);
+  } catch (error) {
+    console.error("Fetch error:", error);
+  }
+};
+
+// Track refresh status
+watch(isRefreshing, (value) => {
+  if (value) {
+    console.log("Token sedang di-refresh...");
+  }
+});
+
+// Logout helper
+const logout = () => {
+  clearTokens();
+  router.push("/login");
+};
+```
+
+#### Parameter
+
+- `baseUrl` (string, opsional): Base URL yang akan digunakan untuk semua request
+- `options` (object, opsional):
+  - `refreshTokenUrl` (string, default: "/api/refresh-token"): URL endpoint untuk refresh token
+  - `getToken` (function): Custom function untuk mendapatkan access token (default: dari localStorage)
+  - `saveToken` (function): Custom function untuk menyimpan access token (default: ke localStorage)
+  - `skipRefreshUrls` (string[], default: ['/auth/login', '/auth/register', '/auth/forgot-password']): Array URL yang di-skip dari auto token refresh
+  - `onRefreshFailCallback` (function): Callback yang dipanggil saat refresh token gagal
+
+#### Return
+
+- `fetchWithAuth` (function): Fungsi fetch dengan automatic token handling dan retry
+- `isRefreshing` (ref): Reactive state untuk track status refresh token (true saat sedang refresh)
+- `clearTokens` (function): Helper untuk menghapus semua tokens dari storage
+
+#### Fitur
+
+- **Automatic Token Injection**: Otomatis menambahkan `Authorization: Bearer <token>` header (hanya jika token ada)
+- **Auto Token Refresh**: Otomatis refresh token saat dapat 401 response
+- **Smart Retry**: Retry request dengan token baru setelah refresh sukses
+- **Refresh Queue**: Prevent multiple refresh jika ada banyak request 401 bersamaan
+- **Skip Refresh URLs**: Public endpoints (login, register) tidak akan trigger auto refresh
+- **Smart 401 Handling**: Cek ketersediaan refresh token sebelum mencoba refresh
+- **No Infinite Loop**: Menggunakan instance fetch terpisah untuk refresh token
+- **Reactive Status**: Track refresh status dengan `isRefreshing` ref
+- **Storage Flexible**: Bisa custom getToken/saveToken (localStorage, sessionStorage, cookie, dll)
+- **Memory Safe**: Auto cleanup saat component unmount
+
+#### Default Token Storage
+
+Secara default, `useFetchServer` menggunakan localStorage untuk menyimpan tokens:
+
+- `accessToken`: Token akses untuk autentikasi
+- `refreshToken`: Token untuk refresh access token
+- `refreshTokenExpiration`: Unix timestamp expiration refresh token
+
+#### Use Case
+
+Ideal untuk:
+
+- Aplikasi dengan autentikasi JWT
+- API yang memerlukan token refresh otomatis
+- SPA (Single Page Application) dengan protected routes
+- Admin dashboard atau aplikasi internal
 
 ## 📄 License
 

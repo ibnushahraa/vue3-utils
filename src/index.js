@@ -16,12 +16,6 @@ export { useCountdown } from "./composables/useCountdown.js";
 export { useTimeAgo } from "./composables/useTimeAgo.js";
 
 /**
- * Composable untuk HTTP fetch dengan caching
- * @see {@link module:composables/useFetch}
- */
-export { useFetch } from "./composables/useFetch.js";
-
-/**
  * Composable untuk animasi count up
  * @see {@link module:composables/useCountUp}
  */
@@ -38,3 +32,21 @@ export { useTypewriter } from "./composables/useTypewriter.js";
  * @see {@link module:wrapper/useEventBus}
  */
 export { useEventBus } from "./wrapper/useEventBus.js";
+
+/**
+ * Wrapper untuk HTTP fetch dengan caching otomatis
+ * @see {@link module:wrapper/useFetch}
+ */
+export { useFetch } from "./wrapper/useFetch.js";
+
+/**
+ * Wrapper untuk memeriksa status expirasi token
+ * @see {@link module:wrapper/useAuthGuard}
+ */
+export { useAuthGuard } from "./wrapper/useAuthGuard.js";
+
+/**
+ * Wrapper untuk fetch dengan manajemen token otomatis
+ * @see {@link module:wrapper/useFetchServer}
+ */
+export { useFetchServer } from "./wrapper/useFetchServer.js";
