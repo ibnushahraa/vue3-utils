@@ -1,6 +1,19 @@
 # vue3-utils
 
-Kumpulan composable utility untuk Vue 3
+Kumpulan composable dan wrapper utility untuk Vue 3
+
+## 📋 Daftar Isi
+
+- [📦 Instalasi](#-instalasi)
+- [🚀 Composables](#-composables)
+  - [useCountdown](#usecountdown)
+  - [useTimeAgo](#usetimeago)
+  - [useCountUp](#usecountup)
+  - [useTypewriter](#usetypewriter)
+  - [useFetch](#usefetch)
+- [🔧 Wrapper](#-wrapper)
+  - [useEventBus](#useeventbus)
+- [📄 License](#-license)
 
 ## 📦 Instalasi
 
@@ -207,28 +220,25 @@ const { displayTextWithCursor } = useTypewriter([
 // <h1>{{ displayTextWithCursor }}</h1>
 
 // Dengan opsi lengkap
-const typewriter = useTypewriter(
-  ["First text", "Second text", "Third text"],
-  {
-    typeSpeed: 80, // kecepatan mengetik (ms per karakter)
-    deleteSpeed: 40, // kecepatan menghapus (ms per karakter)
-    delayBeforeDelete: 3000, // delay sebelum mulai hapus
-    delayBeforeType: 500, // delay sebelum ketik teks berikutnya
-    loop: true, // loop infinite
-    autoStart: true, // auto start saat mount
-    showCursor: true, // tampilkan cursor berkedip
-    cursorChar: "_", // karakter cursor
-    onTypeComplete: (text, index) => {
-      console.log(`Selesai mengetik: ${text} (index: ${index})`);
-    },
-    onDeleteComplete: (index) => {
-      console.log(`Selesai menghapus index: ${index}`);
-    },
-    onLoopComplete: () => {
-      console.log("Loop selesai!");
-    },
-  }
-);
+const typewriter = useTypewriter(["First text", "Second text", "Third text"], {
+  typeSpeed: 80, // kecepatan mengetik (ms per karakter)
+  deleteSpeed: 40, // kecepatan menghapus (ms per karakter)
+  delayBeforeDelete: 3000, // delay sebelum mulai hapus
+  delayBeforeType: 500, // delay sebelum ketik teks berikutnya
+  loop: true, // loop infinite
+  autoStart: true, // auto start saat mount
+  showCursor: true, // tampilkan cursor berkedip
+  cursorChar: "_", // karakter cursor
+  onTypeComplete: (text, index) => {
+    console.log(`Selesai mengetik: ${text} (index: ${index})`);
+  },
+  onDeleteComplete: (index) => {
+    console.log(`Selesai menghapus index: ${index}`);
+  },
+  onLoopComplete: () => {
+    console.log("Loop selesai!");
+  },
+});
 
 // Manual control
 const typewriter = useTypewriter(["Text 1", "Text 2"], { autoStart: false });
@@ -353,6 +363,49 @@ const {
 - **Caching**: Cache otomatis dengan waktu expired yang dapat dikonfigurasi
 - **Auto-cleanup**: Cache otomatis dihapus setelah waktu expired
 - **Manual refetch**: Dapat melakukan fetch ulang secara manual
+
+## 🔧 Wrapper
+
+### useEventBus
+
+Wrapper untuk mengakses event bus global yang memudahkan komunikasi antar komponen.
+
+```javascript
+import { useEventBus } from "vue3-utils";
+
+// Kirim event
+const bus = useEventBus();
+bus.emit("user:login", { id: 123, name: "John" });
+
+// Daftarkan listener
+bus.on("user:login", (userData) => {
+  console.log("User login:", userData);
+});
+
+// Listener sekali jalan
+bus.once("notification", (message) => {
+  console.log("Notifikasi pertama:", message);
+});
+
+// Hapus listener spesifik
+const handler = (data) => {};
+bus.on("event", handler);
+bus.off("event", handler);
+```
+
+#### Metode
+
+- `on(event, fn)`: Mendaftarkan listener untuk event tertentu
+- `emit(event, ...args)`: Mengirim event dengan argumen opsional
+- `off(event, fn)`: Menghapus listener spesifik
+- `once(event, fn)`: Mendaftarkan listener yang hanya berjalan sekali
+
+#### Fitur
+
+- **Global event bus**: Akses instance event bus global
+- **Multiple listeners**: Satu event bisa memiliki beberapa listener
+- **Listener control**: Daftarkan, kirim, dan hapus listener dengan mudah
+- **Listener sekali jalan**: Dukungan untuk listener yang hanya dijalankan sekali
 
 ## 📄 License
 

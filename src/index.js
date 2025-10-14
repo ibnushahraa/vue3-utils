@@ -32,3 +32,9 @@ export { useCountUp } from "./composables/useCountUp.js";
  * @see {@link module:composables/useTypewriter}
  */
 export { useTypewriter } from "./composables/useTypewriter.js";
+
+/**
+ * Wrapper untuk mengakses instance event bus global
+ * @see {@link module:wrapper/useEventBus}
+ */
+export { useEventBus } from "./wrapper/useEventBus.js";
