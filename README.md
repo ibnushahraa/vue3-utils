@@ -189,6 +189,104 @@ counter.update(10000);
 - **Kontrol penuh**: Bisa start, pause, resume, reset, dan update nilai
 - **Auto-cleanup**: Otomatis membersihkan animasi saat component unmount
 
+### useTypewriter
+
+Composable untuk membuat efek typewriter/typing animation dengan array teks.
+
+```javascript
+import { useTypewriter } from "vue3-utils";
+
+// Basic usage
+const { displayTextWithCursor } = useTypewriter([
+  "Hello World",
+  "Vue 3 is awesome",
+  "TypeScript is great",
+]);
+
+// Gunakan di template
+// <h1>{{ displayTextWithCursor }}</h1>
+
+// Dengan opsi lengkap
+const typewriter = useTypewriter(
+  ["First text", "Second text", "Third text"],
+  {
+    typeSpeed: 80, // kecepatan mengetik (ms per karakter)
+    deleteSpeed: 40, // kecepatan menghapus (ms per karakter)
+    delayBeforeDelete: 3000, // delay sebelum mulai hapus
+    delayBeforeType: 500, // delay sebelum ketik teks berikutnya
+    loop: true, // loop infinite
+    autoStart: true, // auto start saat mount
+    showCursor: true, // tampilkan cursor berkedip
+    cursorChar: "_", // karakter cursor
+    onTypeComplete: (text, index) => {
+      console.log(`Selesai mengetik: ${text} (index: ${index})`);
+    },
+    onDeleteComplete: (index) => {
+      console.log(`Selesai menghapus index: ${index}`);
+    },
+    onLoopComplete: () => {
+      console.log("Loop selesai!");
+    },
+  }
+);
+
+// Manual control
+const typewriter = useTypewriter(["Text 1", "Text 2"], { autoStart: false });
+
+typewriter.start(); // mulai atau restart animasi
+typewriter.pause(); // pause animasi
+typewriter.resume(); // lanjutkan animasi
+typewriter.stop(); // stop dan reset
+typewriter.next(); // skip ke teks berikutnya
+typewriter.prev(); // skip ke teks sebelumnya
+
+// Update array teks secara dinamis
+typewriter.updateTexts(["New text 1", "New text 2"]);
+```
+
+#### Parameter
+
+- `texts` (string[]): Array string yang akan ditampilkan dengan efek typewriter
+- `options` (object, opsional):
+  - `typeSpeed` (number, default: 100): Kecepatan mengetik dalam ms per karakter
+  - `deleteSpeed` (number, default: 50): Kecepatan menghapus dalam ms per karakter
+  - `delayBeforeDelete` (number, default: 2000): Delay sebelum mulai menghapus dalam ms
+  - `delayBeforeType` (number, default: 500): Delay sebelum mengetik teks berikutnya dalam ms
+  - `loop` (boolean, default: true): Loop terus menerus melalui array
+  - `autoStart` (boolean, default: true): Autostart animasi saat composable di-mount
+  - `showCursor` (boolean, default: true): Tampilkan cursor berkedip
+  - `cursorChar` (string, default: "|"): Karakter cursor
+  - `onTypeComplete` (function): Callback saat selesai mengetik satu teks
+  - `onDeleteComplete` (function): Callback saat selesai menghapus satu teks
+  - `onLoopComplete` (function): Callback saat loop selesai (jika loop: false)
+
+#### Return
+
+- `displayText` (ref): Teks yang sedang ditampilkan (tanpa cursor)
+- `displayTextWithCursor` (computed): Teks lengkap dengan cursor berkedip
+- `currentIndex` (ref): Index teks yang sedang aktif dari array
+- `isTyping` (ref): Status apakah animasi sedang berjalan
+- `isDeleting` (ref): Status apakah sedang menghapus
+- `isPaused` (ref): Status apakah animasi sedang di-pause
+- `start` (function): Mulai atau restart animasi
+- `pause` (function): Pause animasi
+- `resume` (function): Resume animasi yang di-pause
+- `stop` (function): Stop animasi dan reset
+- `next` (function): Skip ke teks berikutnya
+- `prev` (function): Skip ke teks sebelumnya
+- `updateTexts` (function): Update array teks secara dinamis
+
+#### Fitur
+
+- **Efek typewriter realistis**: Animasi mengetik dan menghapus karakter per karakter
+- **Multiple texts**: Mendukung array teks yang ditampilkan secara berurutan
+- **Cursor berkedip**: Cursor animasi yang dapat dikustomisasi
+- **Loop control**: Bisa loop infinite atau sekali jalan
+- **Manual control**: Kontrol penuh dengan start, pause, resume, stop, next, prev
+- **Dynamic update**: Bisa update array teks saat runtime
+- **Event callbacks**: Callback untuk setiap event penting
+- **Auto-cleanup**: Otomatis membersihkan timeout dan interval saat unmount
+
 ### useFetch
 
 Composable untuk HTTP fetch dengan fungsionalitas caching otomatis.

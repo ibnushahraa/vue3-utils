@@ -26,3 +26,9 @@ export { useFetch } from "./composables/useFetch.js";
  * @see {@link module:composables/useCountUp}
  */
 export { useCountUp } from "./composables/useCountUp.js";
+
+/**
+ * Composable untuk efek typewriter/typing animation
+ * @see {@link module:composables/useTypewriter}
+ */
+export { useTypewriter } from "./composables/useTypewriter.js";
