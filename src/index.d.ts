@@ -6,3 +6,5 @@ export { useEventBus } from "./wrapper/useEventBus";
 export { useFetch } from "./wrapper/useFetch";
 export { useAuthGuard } from "./wrapper/useAuthGuard";
 export { useFetchServer } from "./wrapper/useFetchServer";
+export { useDateTime } from "./wrapper/useDateTime";
+export { useCurrency } from "./wrapper/useCurrency";
