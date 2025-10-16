@@ -1,5 +1,10 @@
 # vue3-utils
 
+[![Test](https://github.com/ibnushahraa/vue3-utils/actions/workflows/test.yml/badge.svg)](https://github.com/ibnushahraa/vue3-utils/actions/workflows/test.yml)
+![Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen)
+[![npm version](https://img.shields.io/github/package-json/v/ibnushahraa/vue3-utils)](https://github.com/ibnushahraa/vue3-utils)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Kumpulan composable dan wrapper utility untuk Vue 3
 
 ## 📋 Daftar Isi

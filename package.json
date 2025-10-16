@@ -1,12 +1,19 @@
 {
   "name": "vue3-utils",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Vue 3 utility composables",
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "type": "module",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "vue3",
@@ -27,6 +34,16 @@
     "ofetch": "^1.4.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.4",
+    "@babel/preset-env": "^7.28.3",
+    "@happy-dom/jest-environment": "^20.0.2",
+    "@jest/globals": "^30.2.0",
+    "@types/jest": "^30.0.0",
+    "@vue/test-utils": "^2.4.6",
+    "babel-jest": "^30.2.0",
+    "happy-dom": "^20.0.2",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5",
     "vue": "^3.5.22"
   }
 }

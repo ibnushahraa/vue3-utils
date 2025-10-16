@@ -1,3 +1,5 @@
+import { eventBus } from '../core/emitter.js'
+
 /**
  * Wrapper untuk mengakses instance event bus global
  * Memungkinkan komunikasi dan pertukaran event antar komponen

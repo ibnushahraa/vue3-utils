@@ -128,14 +128,12 @@ export function useSSE(url, options = {}) {
   };
 
   const start = () => {
-    // Jika sudah ada connection yang aktif, jangan buat baru
-    if (source && source.readyState !== EventSource.CLOSED) {
-      return;
-    }
-
-    // Cleanup existing connection
+    // Cleanup existing connection if any
     if (source) {
-      source.close();
+      // Jika sudah ada connection yang aktif, close it terlebih dahulu
+      if (source.readyState !== EventSource.CLOSED) {
+        source.close();
+      }
       source = null;
     }
 
@@ -159,13 +157,20 @@ export function useSSE(url, options = {}) {
       };
 
       source.onmessage = (event) => {
+        // Parse data
+        let parsedData;
         try {
-          const parsed = JSON.parse(event.data);
-          data.value = parsed;
-          onMessage?.(parsed, event);
+          parsedData = JSON.parse(event.data);
         } catch {
-          data.value = event.data;
-          onMessage?.(event.data, event);
+          parsedData = event.data;
+        }
+        data.value = parsedData;
+
+        // Call user callback with error handling
+        try {
+          onMessage?.(parsedData, event);
+        } catch (err) {
+          console.error("Error in onMessage callback:", err);
         }
       };
 

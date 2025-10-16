@@ -98,24 +98,25 @@ export function useFetch(url, options = {}, { cacheTime = 0, immediate = true } 
     loading.value = true;
     error.value = null;
 
-    // Check cache
-    if (!bypassCache && cacheTime > 0) {
-      const cached = cache.get(cacheKey);
-      const now = Date.now();
-
-      if (cached && now - cached.timestamp < cacheTime) {
-        data.value = cached.data
-        loading.value = false
-        return cached.data
-      }
-
-      // Expired cache
-      if (cached && now - cached.timestamp >= cacheTime) {
-        cleanupExpiredCache(cacheKey)
-      }
-    }
-
     try {
+      // Check cache
+      if (!bypassCache && cacheTime > 0) {
+        const cached = cache.get(cacheKey);
+        const now = Date.now();
+
+        if (cached && now - cached.timestamp < cacheTime) {
+          // Use await to ensure async consistency
+          await Promise.resolve()
+          data.value = cached.data
+          return cached.data
+        }
+
+        // Expired cache
+        if (cached && now - cached.timestamp >= cacheTime) {
+          cleanupExpiredCache(cacheKey)
+        }
+      }
+
       // Create abort controller untuk request ini
       abortController.value = new AbortController()
 
@@ -138,13 +139,14 @@ export function useFetch(url, options = {}, { cacheTime = 0, immediate = true } 
         cacheTimers.set(cacheKey, timer)
       }
 
+      error.value = null // Clear any previous errors on success
       return response
     } catch (err) {
       // Ignore abort errors
       if (err.name !== 'AbortError') {
         error.value = err
-        throw err
       }
+      return null
     } finally {
       loading.value = false
       abortController.value = null

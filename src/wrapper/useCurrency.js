@@ -26,12 +26,22 @@ export function useCurrency(value) {
      * @returns {string} String currency dalam format IDR (contoh: "Rp 150.000")
      */
     const format = (val = value) => {
-        if (isNaN(val)) return 'Invalid Number'
-        return new Intl.NumberFormat('id-ID', {
+        // Handle invalid numbers
+        if (isNaN(val) || !isFinite(val)) return 'Invalid Number'
+
+        // Round the number to nearest integer and handle negative zero
+        const rounded = Math.round(val)
+        const normalized = Object.is(rounded, -0) ? 0 : rounded
+
+        const formatted = new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR',
-            minimumFractionDigits: 0
-        }).format(val)
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(normalized)
+
+        // Replace non-breaking space with regular space for easier testing/comparison
+        return formatted.replace(/\u00A0/g, ' ')
     }
 
     return { format }

@@ -40,8 +40,13 @@
  */
 export function useDateTime(input = new Date()) {
     // parsing aman: support format DB "YYYY-MM-DD HH:mm:ss"
-    const raw = String(input instanceof Date ? input : input || '').trim()
-    const date = new Date(raw.replace(' ', 'T'))
+    let date
+    if (input instanceof Date) {
+        date = input
+    } else {
+        const raw = String(input || '').trim()
+        date = new Date(raw.replace(' ', 'T'))
+    }
 
     /**
      * Menambahkan leading zero untuk angka
@@ -87,7 +92,19 @@ export function useDateTime(input = new Date()) {
         if (!isValid()) return 'Invalid Date'
         let out = fmt
         const parts = map(date)
-        for (const key in parts) out = out.replace(new RegExp(key, 'g'), parts[key])
+        // Sort keys by length (longest first) to avoid partial replacements
+        const sortedKeys = Object.keys(parts).sort((a, b) => b.length - a.length)
+        // Use unique placeholders that won't conflict with any date values
+        const placeholders = {}
+        sortedKeys.forEach((key, index) => {
+            const placeholder = `\x00${index}\x00` // Use null bytes as placeholders
+            placeholders[placeholder] = String(parts[key])
+            out = out.split(key).join(placeholder)
+        })
+        // Replace placeholders with actual values
+        for (const placeholder in placeholders) {
+            out = out.split(placeholder).join(placeholders[placeholder])
+        }
         return out
     }
 
