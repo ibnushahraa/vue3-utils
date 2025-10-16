@@ -11,6 +11,7 @@ Kumpulan composable dan wrapper utility untuk Vue 3
   - [useCountUp](#usecountup)
   - [useTypewriter](#usetypewriter)
   - [useSSE](#usesse)
+  - [useClipboard](#useclipboard)
 - [🔧 Wrapper](#-wrapper)
   - [useEventBus](#useeventbus)
   - [useFetch](#usefetch)
@@ -22,8 +23,20 @@ Kumpulan composable dan wrapper utility untuk Vue 3
 
 ## 📦 Instalasi
 
+### Install Latest Version
+
 ```bash
 npm install github:ibnushahraa/vue3-utils
+```
+
+### Install Specific Version
+
+```bash
+# Install versi tertentu (recommended untuk production)
+npm install github:ibnushahraa/vue3-utils#v0.0.1
+
+# Atau dengan semver tag
+npm install github:ibnushahraa/vue3-utils#semver:^0.0.1
 ```
 
 ### Update Library
@@ -39,6 +52,12 @@ Atau untuk memaksa update ke versi terbaru:
 ```bash
 npm install github:ibnushahraa/vue3-utils@latest
 ```
+
+### Version Info
+
+Current version: **v0.0.1** (Pre-release)
+
+Lihat [CHANGELOG.md](CHANGELOG.md) untuk detail perubahan setiap versi.
 
 ## 🚀 Usage
 
@@ -428,6 +447,109 @@ Ideal untuk:
 - Stock/crypto price updates
 - Server logs streaming
 - Progress monitoring
+
+### useClipboard
+
+Composable untuk copy text ke clipboard dengan automatic fallback untuk browser lama.
+
+```javascript
+import { useClipboard } from "vue3-utils";
+
+// Basic usage
+const { copy, copied } = useClipboard();
+
+const handleCopy = async () => {
+  const success = await copy("Hello World");
+  if (success) {
+    console.log("Text copied!");
+  }
+};
+
+// Gunakan di template
+// <button @click="copy('Text to copy')">
+//   {{ copied ? 'Copied!' : 'Copy' }}
+// </button>
+
+// Copy dengan reactive feedback
+const { copy, copied, copiedText } = useClipboard();
+
+const copyUrl = async () => {
+  await copy(window.location.href);
+  // copied.value akan true selama 2 detik
+  // copiedText.value = window.location.href
+};
+
+// Custom duration untuk feedback
+const { copy, copied } = useClipboard({ copiedDuration: 3000 });
+
+// Copy code snippet
+const codeSnippet = `
+function hello() {
+  console.log('Hello World');
+}
+`;
+
+const { copy, copied } = useClipboard();
+
+// Di template
+// <pre>{{ codeSnippet }}</pre>
+// <button @click="copy(codeSnippet)">
+//   <span v-if="copied">✓ Copied!</span>
+//   <span v-else>Copy Code</span>
+// </button>
+
+// Check browser support
+const { isSupported, copy } = useClipboard();
+
+if (!isSupported.value) {
+  console.warn("Clipboard API not supported, using fallback");
+}
+
+// Disable fallback (hanya gunakan modern API)
+const { copy } = useClipboard({ legacy: false });
+```
+
+#### Parameter
+
+- `options` (object, opsional):
+  - `copiedDuration` (number, default: 2000): Durasi status 'copied' dalam milliseconds sebelum reset
+  - `legacy` (boolean, default: true): Enable fallback ke execCommand untuk browser lama
+
+#### Return
+
+- `copied` (ref): Reactive state indicating apakah baru saja copy (auto-reset setelah duration)
+- `copiedText` (ref): Reactive text yang terakhir berhasil di-copy
+- `isSupported` (ref): Apakah browser support Clipboard API modern
+- `copy` (function): Function untuk copy text ke clipboard, returns `Promise<boolean>`
+
+#### Fitur
+
+- **Modern Clipboard API**: Menggunakan `navigator.clipboard.writeText()` untuk modern browsers
+- **Automatic Fallback**: Fallback ke `execCommand('copy')` jika Clipboard API tidak tersedia
+- **Auto-reset State**: Status `copied` otomatis reset setelah duration (default 2 detik)
+- **Promise-based**: Async/await support dengan return value true/false
+- **Type Safe**: Full TypeScript support dengan type definitions
+- **Browser Compatibility**: Work di semua modern browsers + fallback untuk IE11/old browsers
+- **HTTPS/Localhost**: Clipboard API butuh HTTPS, tapi fallback work di HTTP
+- **Error Handling**: Graceful error handling dengan console warning
+
+#### Use Case
+
+Ideal untuk:
+
+- Copy button untuk share URLs
+- Copy code snippets di documentation
+- Copy API keys atau tokens
+- Copy formatted text dari tables
+- Copy hasil generate (invoice number, order ID, etc)
+- Copy to clipboard dari modal/tooltip
+- Social media share text
+
+#### Browser Support
+
+- **Modern Browsers** (Chrome 63+, Firefox 53+, Safari 13.1+): Clipboard API
+- **Legacy Browsers** (IE11, older versions): execCommand fallback
+- **Mobile**: iOS Safari 13.4+, Chrome Android, Firefox Android
 
 ## 🔧 Wrapper
 

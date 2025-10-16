@@ -28,6 +28,18 @@ export { useCountUp } from "./composables/useCountUp.js";
 export { useTypewriter } from "./composables/useTypewriter.js";
 
 /**
+ * Composable untuk Server-Sent Events (SSE) dengan auto-reconnection
+ * @see {@link module:composables/useSSE}
+ */
+export { useSSE } from "./composables/useSSE.js";
+
+/**
+ * Composable untuk copy text ke clipboard
+ * @see {@link module:composables/useClipboard}
+ */
+export { useClipboard } from "./composables/useClipboard.js";
+
+/**
  * Wrapper untuk mengakses instance event bus global
  * @see {@link module:wrapper/useEventBus}
  */
@@ -62,9 +74,3 @@ export { useDateTime } from "./wrapper/useDateTime.js";
  * @see {@link module:wrapper/useCurrency}
  */
 export { useCurrency } from "./wrapper/useCurrency.js";
-
-/**
- * Composable untuk Server-Sent Events (SSE) dengan auto-reconnection
- * @see {@link module:composables/useSSE}
- */
-export { useSSE } from "./composables/useSSE.js";
