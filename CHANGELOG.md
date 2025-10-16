@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.2] - 2025-01-17
+
+### Added
+
+#### Testing Infrastructure
+- **Test Suite**: Penambahan folder `test/` dengan comprehensive test coverage menggunakan Vitest
+- **GitHub Actions**: Setup automated testing dan coverage reporting via CI/CD
+- **Coverage Tracking**: Integrasi coverage badge untuk monitoring test coverage
+
 ## [0.0.1] - 2025-01-17
 
 ### Added
@@ -50,5 +59,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Repository](https://github.com/ibnushahraa/vue3-utils)
 - [Issues](https://github.com/ibnushahraa/vue3-utils/issues)
 
-[Unreleased]: https://github.com/ibnushahraa/vue3-utils/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/ibnushahraa/vue3-utils/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/ibnushahraa/vue3-utils/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/ibnushahraa/vue3-utils/releases/tag/v0.0.1
