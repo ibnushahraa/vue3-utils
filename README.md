@@ -15,6 +15,8 @@ Kumpulan composable dan wrapper utility untuk Vue 3
   - [useFetch](#usefetch)
   - [useAuthGuard](#useauthguard)
   - [useFetchServer](#usefetchserver)
+  - [useDateTime](#usedatetime)
+  - [useCurrency](#usecurrency)
 - [📄 License](#-license)
 
 ## 📦 Instalasi
@@ -629,6 +631,163 @@ Ideal untuk:
 - API yang memerlukan token refresh otomatis
 - SPA (Single Page Application) dengan protected routes
 - Admin dashboard atau aplikasi internal
+
+### useDateTime
+
+Wrapper untuk manipulasi dan formatting tanggal/waktu dengan dukungan Bahasa Indonesia.
+
+```javascript
+import { useDateTime } from "vue3-utils";
+
+// Format tanggal basic
+const date = useDateTime("2024-01-15 10:30:00");
+console.log(date.format()); // "15 Januari 2024 10:30:00"
+console.log(date.format("DD/MM/YYYY")); // "15/01/2024"
+console.log(date.format("DD MMMM YYYY")); // "15 Januari 2024"
+
+// Support format database "YYYY-MM-DD HH:mm:ss"
+const dbDate = useDateTime("2024-12-31 23:59:59");
+console.log(dbDate.format("DD MMMM YYYY HH:mm")); // "31 Desember 2024 23:59"
+
+// Chaining operations
+const tomorrow = useDateTime()
+  .add(1, "days")
+  .format("DD MMMM YYYY"); // "besok"
+
+const nextWeek = useDateTime()
+  .add(7, "days")
+  .subtract(2, "hours")
+  .format("DD/MM/YYYY HH:mm");
+
+// Operasi aritmatika
+const future = useDateTime("2024-01-01")
+  .add(3, "months")
+  .add(15, "days")
+  .add(2, "hours");
+
+console.log(future.format("DD MMMM YYYY HH:mm")); // "16 April 2024 02:00"
+
+// Validasi tanggal
+const invalid = useDateTime("invalid-date");
+console.log(invalid.isValid()); // false
+console.log(invalid.format()); // "Invalid Date"
+
+// Convert ke native Date atau timestamp
+const date = useDateTime("2024-01-15");
+const nativeDate = date.toDate(); // Date object
+const timestamp = date.valueOf(); // 1705276800000
+```
+
+#### Parameter
+
+- `input` (Date | string, opsional, default: `new Date()`): Input date yang mendukung format database "YYYY-MM-DD HH:mm:ss"
+
+#### Return (DateTimeAPI)
+
+- `format(fmt?: string)`: Format tanggal sesuai pattern (default: "DD MMMM YYYY HH:mm:ss")
+- `add(value: number, unit: TimeUnit)`: Menambah waktu, return instance baru untuk chaining
+- `subtract(value: number, unit: TimeUnit)`: Mengurangi waktu, return instance baru untuk chaining
+- `toDate()`: Mengambil native Date object
+- `valueOf()`: Mengambil timestamp dalam milliseconds
+- `isValid()`: Validasi apakah date valid
+
+#### Time Units
+
+- `'seconds'` - Detik
+- `'minutes'` - Menit
+- `'hours'` - Jam
+- `'days'` - Hari
+- `'months'` - Bulan
+- `'years'` - Tahun
+
+#### Format Tokens
+
+- `DD` - Tanggal dengan leading zero (01-31)
+- `D` - Tanggal tanpa leading zero (1-31)
+- `MM` - Bulan dengan leading zero (01-12)
+- `MMMM` - Nama bulan dalam Bahasa Indonesia
+- `YY` - Tahun 2 digit (24)
+- `YYYY` - Tahun 4 digit (2024)
+- `HH` - Jam dengan leading zero (00-23)
+- `mm` - Menit dengan leading zero (00-59)
+- `ss` - Detik dengan leading zero (00-59)
+
+#### Fitur
+
+- **Bahasa Indonesia**: Nama bulan dalam Bahasa Indonesia (Januari, Februari, dst)
+- **Database Format Support**: Support parsing format "YYYY-MM-DD HH:mm:ss" dari database
+- **Chainable API**: Method chaining untuk operasi berurutan
+- **Immutable**: Setiap operasi return instance baru (tidak modify original)
+- **Validation**: Built-in validation untuk date yang valid/invalid
+- **Flexible Format**: Custom format dengan token yang mudah
+
+### useCurrency
+
+Wrapper untuk formatting angka ke format currency Rupiah Indonesia (IDR).
+
+```javascript
+import { useCurrency } from "vue3-utils";
+
+// Basic usage
+const price = useCurrency(150000);
+console.log(price.format()); // "Rp 150.000"
+
+// Format dengan nilai dinamis
+const currency = useCurrency(0);
+console.log(currency.format(250000)); // "Rp 250.000"
+console.log(currency.format(1500000)); // "Rp 1.500.000"
+console.log(currency.format(50000000)); // "Rp 50.000.000"
+
+// Gunakan dalam component
+const product = {
+  name: "Laptop",
+  price: 15000000,
+};
+
+const { format } = useCurrency(product.price);
+console.log(`${product.name}: ${format()}`); // "Laptop: Rp 15.000.000"
+
+// Format dengan nilai berbeda
+const formatter = useCurrency(0);
+const prices = [10000, 50000, 100000];
+prices.forEach((price) => {
+  console.log(formatter.format(price));
+});
+// Output:
+// Rp 10.000
+// Rp 50.000
+// Rp 100.000
+
+// Validasi
+const invalid = useCurrency(0);
+console.log(invalid.format(NaN)); // "Invalid Number"
+console.log(invalid.format("abc")); // "Invalid Number"
+```
+
+#### Parameter
+
+- `value` (number): Nilai angka yang akan diformat
+
+#### Return (CurrencyAPI)
+
+- `format(val?: number)`: Format angka ke format currency IDR. Jika `val` tidak diberikan, akan menggunakan `value` awal
+
+#### Fitur
+
+- **Format IDR**: Menggunakan format Rupiah Indonesia dengan pemisah ribuan (.)
+- **No Decimals**: Default tanpa desimal (`minimumFractionDigits: 0`)
+- **Intl.NumberFormat**: Menggunakan native Intl API untuk formatting yang konsisten
+- **Validation**: Built-in validation untuk input yang invalid
+- **Flexible**: Bisa format dengan nilai awal atau nilai dinamis
+
+#### Format Output
+
+Contoh format output:
+- `100` → "Rp 100"
+- `1000` → "Rp 1.000"
+- `50000` → "Rp 50.000"
+- `1000000` → "Rp 1.000.000"
+- `15000000` → "Rp 15.000.000"
 
 ## 📄 License
 

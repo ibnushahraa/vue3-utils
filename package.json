@@ -25,5 +25,8 @@
   },
   "dependencies": {
     "ofetch": "^1.4.1"
+  },
+  "devDependencies": {
+    "vue": "^3.5.22"
   }
 }
