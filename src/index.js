@@ -62,3 +62,9 @@ export { useDateTime } from "./wrapper/useDateTime.js";
  * @see {@link module:wrapper/useCurrency}
  */
 export { useCurrency } from "./wrapper/useCurrency.js";
+
+/**
+ * Composable untuk Server-Sent Events (SSE) dengan auto-reconnection
+ * @see {@link module:composables/useSSE}
+ */
+export { useSSE } from "./composables/useSSE.js";

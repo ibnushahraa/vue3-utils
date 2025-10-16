@@ -10,6 +10,7 @@ Kumpulan composable dan wrapper utility untuk Vue 3
   - [useTimeAgo](#usetimeago)
   - [useCountUp](#usecountup)
   - [useTypewriter](#usetypewriter)
+  - [useSSE](#usesse)
 - [🔧 Wrapper](#-wrapper)
   - [useEventBus](#useeventbus)
   - [useFetch](#usefetch)
@@ -300,6 +301,133 @@ typewriter.updateTexts(["New text 1", "New text 2"]);
 - **Dynamic update**: Bisa update array teks saat runtime
 - **Event callbacks**: Callback untuk setiap event penting
 - **Auto-cleanup**: Otomatis membersihkan timeout dan interval saat unmount
+
+### useSSE
+
+Composable untuk Server-Sent Events (SSE) dengan auto-reconnection dan custom event handlers.
+
+```javascript
+import { useSSE } from "vue3-utils";
+
+// Basic usage
+const { data, isConnected, error, start, stop } = useSSE("/api/events", {
+  autoStart: true,
+  onMessage: (data) => {
+    console.log("Received:", data);
+  },
+});
+
+// Gunakan di template
+// <div v-if="!isConnected">Connecting...</div>
+// <div v-else-if="error">Error: {{ error }}</div>
+// <div v-else>{{ data }}</div>
+
+// Advanced usage dengan custom events dan auto-reconnect
+const sse = useSSE("/api/stream", {
+  autoReconnect: true,
+  reconnectDelay: 2000,
+  maxReconnectDelay: 30000,
+  maxRetries: 5,
+  onOpen: () => {
+    console.log("SSE connection established!");
+  },
+  onMessage: (data, event) => {
+    console.log("Default message:", data);
+  },
+  onError: (error, retryCount) => {
+    console.error(`Connection error, retry attempt: ${retryCount}`, error);
+  },
+  eventHandlers: {
+    notification: (data) => {
+      // Handle custom 'notification' event
+      showNotification(data);
+    },
+    update: (data) => {
+      // Handle custom 'update' event
+      updateUI(data);
+    },
+    heartbeat: (data) => {
+      // Handle custom 'heartbeat' event
+      console.log("Server heartbeat:", data);
+    },
+  },
+});
+
+// Manual control
+sse.start(); // Mulai connection
+sse.stop(); // Stop connection (manual close, tidak akan auto-reconnect)
+sse.reset(); // Stop + clear data/error
+
+// Monitor retry count
+watch(sse.retryCount, (count) => {
+  if (count > 3) {
+    console.warn("Multiple reconnection attempts:", count);
+  }
+});
+
+// Contoh backend (Node.js/Express)
+// app.get('/api/events', (req, res) => {
+//   res.setHeader('Content-Type', 'text/event-stream');
+//   res.setHeader('Cache-Control', 'no-cache');
+//   res.setHeader('Connection', 'keep-alive');
+//
+//   // Default message event
+//   res.write(`data: ${JSON.stringify({ message: 'Hello' })}\n\n`);
+//
+//   // Custom event
+//   res.write(`event: notification\n`);
+//   res.write(`data: ${JSON.stringify({ title: 'New Message' })}\n\n`);
+// });
+```
+
+#### Parameter
+
+- `url` (string): URL endpoint untuk SSE connection
+- `options` (object, opsional):
+  - `autoStart` (boolean, default: false): Mulai otomatis saat composable dipanggil
+  - `autoReconnect` (boolean, default: true): Auto reconnect saat connection terputus
+  - `reconnectDelay` (number, default: 1000): Delay awal reconnect dalam milliseconds
+  - `maxReconnectDelay` (number, default: 30000): Maximum delay untuk reconnect dalam milliseconds
+  - `maxRetries` (number, default: Infinity): Maksimal jumlah retry attempts
+  - `onMessage` (function): Callback saat menerima pesan `(data, event) => void`
+  - `onError` (function): Callback saat terjadi error `(error, retryCount) => void`
+  - `onOpen` (function): Callback saat connection berhasil terbuka `(event) => void`
+  - `eventHandlers` (object): Custom event handlers `{ eventName: (data, event) => void }`
+
+#### Return
+
+- `data` (ref): Reactive data terbaru yang diterima dari SSE
+- `error` (ref): Reactive error object jika ada error
+- `isConnected` (ref): Reactive connection status
+- `retryCount` (ref): Reactive retry attempt counter
+- `start` (function): Memulai SSE connection
+- `stop` (function): Menghentikan SSE connection secara manual
+- `reset` (function): Reset state (stop + clear data/error)
+
+#### Fitur
+
+- **Auto-reconnection**: Reconnect otomatis dengan exponential backoff strategy (1s → 2s → 4s → 8s → max 30s)
+- **Connection State Management**: Accurate connection state tracking dengan `onopen` event
+- **Custom Event Handlers**: Support untuk SSE custom events selain default `message` event
+- **Error Handling**: Try-catch di semua callback untuk prevent crash
+- **Request Cancellation**: Proper cleanup dan cancellation saat stop atau unmount
+- **Manual vs Network Error**: Bedakan manual close vs network error untuk auto-reconnect logic
+- **Retry Tracking**: Monitor jumlah retry attempts dengan reactive `retryCount`
+- **Smart Reconnection**: Reset delay setelah connection sukses
+- **Memory Safe**: Auto cleanup saat component unmount
+- **JSON Auto-parse**: Otomatis parse JSON data atau return raw string
+
+#### Use Case
+
+Ideal untuk:
+
+- Real-time notifications
+- Live dashboard updates
+- Chat applications
+- Live activity feeds
+- Stock/crypto price updates
+- Server logs streaming
+- Progress monitoring
 
 ## 🔧 Wrapper
 

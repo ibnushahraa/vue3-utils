@@ -2,6 +2,7 @@ export { useCountdown } from "./composables/useCountdown";
 export { useTimeAgo } from "./composables/useTimeAgo";
 export { useCountUp } from "./composables/useCountUp";
 export { useTypewriter } from "./composables/useTypewriter";
+export { useSSE } from "./composables/useSSE";
 export { useEventBus } from "./wrapper/useEventBus";
 export { useFetch } from "./wrapper/useFetch";
 export { useAuthGuard } from "./wrapper/useAuthGuard";
