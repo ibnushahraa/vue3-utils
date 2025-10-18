@@ -326,6 +326,53 @@ typewriter.updateTexts(["New text 1", "New text 2"]);
 - **Event callbacks**: Callback untuk setiap event penting
 - **Auto-cleanup**: Otomatis membersihkan timeout dan interval saat unmount
 
+#### ⚠️ IMPORTANT: Prevent Layout Shift
+
+Untuk menghindari perubahan tinggi konten yang menyebabkan layout shift (website bergerak/melompat) saat typewriter berganti teks, **SANGAT PENTING** untuk membungkus `displayTextWithCursor` dengan class CSS yang memiliki `min-height` tetap.
+
+**Contoh implementasi:**
+
+```vue
+<template>
+  <div class="typewriter-container">
+    {{ displayTextWithCursor }}
+  </div>
+</template>
+
+<script setup>
+import { useTypewriter } from "vue3-utils";
+
+const { displayTextWithCursor } = useTypewriter([
+  "Teks pertama yang pendek",
+  "Teks kedua yang sangat panjang dan bisa sampai beberapa baris",
+  "Teks ketiga"
+]);
+</script>
+
+<style scoped>
+.typewriter-container {
+  min-height: 3.6rem; /* Sesuaikan dengan tinggi teks terpanjang */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Untuk responsive */
+@media (max-width: 600px) {
+  .typewriter-container {
+    min-height: 5rem; /* Teks mungkin lebih tinggi di mobile */
+  }
+}
+</style>
+```
+
+**Penjelasan:**
+- `min-height`: Berikan tinggi minimum yang cukup untuk menampung teks terpanjang dalam array (biasanya 2-4 baris)
+- `display: flex` dengan `align-items: center`: Membuat teks tetap center vertikal meskipun tinggi berubah
+- `justify-content: center`: Center horizontal (opsional, sesuaikan kebutuhan)
+
+Tanpa `min-height`, container akan berubah tinggi saat teks berganti-ganti, menyebabkan elemen di bawahnya bergerak naik-turun (layout shift).
+
 ### useSSE
 
 Composable untuk Server-Sent Events (SSE) dengan auto-reconnection dan custom event handlers.
