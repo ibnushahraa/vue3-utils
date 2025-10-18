@@ -46,6 +46,12 @@ export { useClipboard } from "./composables/useClipboard.js";
 export { useEventBus } from "./wrapper/useEventBus.js";
 
 /**
+ * Instance global event bus
+ * @see {@link module:core/emitter}
+ */
+export { eventBus, Emitter } from "./core/emitter.js";
+
+/**
  * Wrapper untuk HTTP fetch dengan caching otomatis
  * @see {@link module:wrapper/useFetch}
  */

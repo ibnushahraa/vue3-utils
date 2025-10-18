@@ -1,4 +1,7 @@
-import { eventBus } from '../core/emitter.js'
+import { Emitter } from '../core/emitter.js'
+
+// Create singleton instance
+let eventBusInstance = null
 
 /**
  * Wrapper untuk mengakses instance event bus global
@@ -16,5 +19,8 @@ import { eventBus } from '../core/emitter.js'
  * })
  */
 export function useEventBus() {
-    return eventBus
+    if (!eventBusInstance) {
+        eventBusInstance = new Emitter()
+    }
+    return eventBusInstance
 }
