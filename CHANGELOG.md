@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.4] - 2025-01-20
+
+### Added
+- **useRandomWords**: Composable untuk menampilkan kata/kalimat secara random dengan dukungan filtering berdasarkan kategori
+
+## [0.0.3] - 2025-01-19
+
+### Fixed
+- **useEventBus**: Perbaikan lazy initialization
+
 ## [0.0.2] - 2025-01-17
 
 ### Added

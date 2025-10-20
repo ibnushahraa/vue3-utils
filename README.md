@@ -17,6 +17,7 @@ Kumpulan composable dan wrapper utility untuk Vue 3
   - [useTypewriter](#usetypewriter)
   - [useSSE](#usesse)
   - [useClipboard](#useclipboard)
+  - [useRandomWords](#userandomwords)
 - [🔧 Wrapper](#-wrapper)
   - [useEventBus](#useeventbus)
   - [useFetch](#usefetch)
@@ -38,10 +39,10 @@ npm install github:ibnushahraa/vue3-utils
 
 ```bash
 # Install versi tertentu (recommended untuk production)
-npm install github:ibnushahraa/vue3-utils#v0.0.2
+npm install github:ibnushahraa/vue3-utils#v0.0.4
 
 # Atau dengan semver tag
-npm install github:ibnushahraa/vue3-utils#semver:^0.0.2
+npm install github:ibnushahraa/vue3-utils#semver:^0.0.4
 ```
 
 ### Update Library
@@ -60,7 +61,7 @@ npm install github:ibnushahraa/vue3-utils@latest
 
 ### Version Info
 
-Current version: **v0.0.2** (Pre-release)
+Current version: **v0.0.4** (Pre-release)
 
 Lihat [CHANGELOG.md](CHANGELOG.md) untuk detail perubahan setiap versi.
 
@@ -345,7 +346,7 @@ import { useTypewriter } from "vue3-utils";
 const { displayTextWithCursor } = useTypewriter([
   "Teks pertama yang pendek",
   "Teks kedua yang sangat panjang dan bisa sampai beberapa baris",
-  "Teks ketiga"
+  "Teks ketiga",
 ]);
 </script>
 
@@ -367,6 +368,7 @@ const { displayTextWithCursor } = useTypewriter([
 ```
 
 **Penjelasan:**
+
 - `min-height`: Berikan tinggi minimum yang cukup untuk menampung teks terpanjang dalam array (biasanya 2-4 baris)
 - `display: flex` dengan `align-items: center`: Membuat teks tetap center vertikal meskipun tinggi berubah
 - `justify-content: center`: Center horizontal (opsional, sesuaikan kebutuhan)
@@ -603,6 +605,61 @@ Ideal untuk:
 - **Legacy Browsers** (IE11, older versions): execCommand fallback
 - **Mobile**: iOS Safari 13.4+, Chrome Android, Firefox Android
 
+### useRandomWords
+
+Composable untuk menampilkan kata/kalimat secara random dari array dengan dukungan filtering berdasarkan kategori.
+
+```javascript
+import { useRandomWords } from "vue3-utils";
+
+// Basic - array string
+const { randomWord } = useRandomWords(["Hello", "Hi", "Hey"]);
+// Di template: {{ randomWord }}
+
+// Dengan object dan kategori
+const words = [
+  { text: "Selamat pagi", category: "morning" },
+  { text: "Selamat siang", category: "afternoon" },
+  { text: "Selamat malam", category: "evening" },
+];
+
+const { randomWord } = useRandomWords(words, { category: "morning" });
+// randomWord.value akan random dari yang category 'morning' saja
+
+// Dengan refresh manual
+const { randomWord, refresh } = useRandomWords(["A", "B", "C"]);
+// Panggil refresh() untuk ganti kata
+
+// Akses data lengkap
+const { randomWord, randomItem } = useRandomWords([
+  { text: "Halo", category: "greeting", emoji: "👋" },
+  { text: "Hi", category: "greeting", emoji: "🖐️" },
+]);
+// randomWord.value -> teks saja ("Halo")
+// randomItem.value -> object lengkap { text: "Halo", category: "greeting", emoji: "👋" }
+```
+
+#### Parameter
+
+- `words` (Array<string | WordItem>): Array kata/kalimat
+- `options` (object, opsional):
+  - `category` (string): Filter berdasarkan kategori tertentu
+
+#### Return
+
+- `randomWord` (ref): Kata/kalimat yang terpilih secara random (string)
+- `randomItem` (ref): Data lengkap item yang terpilih (object/string)
+- `refresh` (function): Fungsi untuk pilih kata random yang baru
+- `filteredWords` (ref): Array kata setelah filtering
+
+#### Fitur
+
+- **Simple API**: Langsung return kata random yang bisa dipakai di template
+- **Category Filter**: Filter kata berdasarkan kategori
+- **Flexible Input**: Support array string atau object dengan property text
+- **Manual Refresh**: Ganti kata random kapan saja dengan `refresh()`
+- **Full Data Access**: Akses data lengkap object via `randomItem`
+
 ## 🔧 Wrapper
 
 ### useEventBus
@@ -684,7 +741,11 @@ await refetch();
 clearCache();
 
 // Fetch manual (tidak otomatis saat mount)
-const { data: searchResult, loading: searching, refetch: search } = useFetch(
+const {
+  data: searchResult,
+  loading: searching,
+  refetch: search,
+} = useFetch(
   "https://api.example.com/search",
   {
     method: "POST",
@@ -952,9 +1013,7 @@ const dbDate = useDateTime("2024-12-31 23:59:59");
 console.log(dbDate.format("DD MMMM YYYY HH:mm")); // "31 Desember 2024 23:59"
 
 // Chaining operations
-const tomorrow = useDateTime()
-  .add(1, "days")
-  .format("DD MMMM YYYY"); // "besok"
+const tomorrow = useDateTime().add(1, "days").format("DD MMMM YYYY"); // "besok"
 
 const nextWeek = useDateTime()
   .add(7, "days")
@@ -1085,6 +1144,7 @@ console.log(invalid.format("abc")); // "Invalid Number"
 #### Format Output
 
 Contoh format output:
+
 - `100` → "Rp 100"
 - `1000` → "Rp 1.000"
 - `50000` → "Rp 50.000"

@@ -40,6 +40,12 @@ export { useSSE } from "./composables/useSSE.js";
 export { useClipboard } from "./composables/useClipboard.js";
 
 /**
+ * Composable untuk menampilkan kata/kalimat random dari array
+ * @see {@link module:composables/useRandomWords}
+ */
+export { useRandomWords } from "./composables/useRandomWords.js";
+
+/**
  * Wrapper untuk mengakses instance event bus global
  * @see {@link module:wrapper/useEventBus}
  */
