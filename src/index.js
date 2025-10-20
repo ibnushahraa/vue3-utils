@@ -46,6 +46,18 @@ export { useClipboard } from "./composables/useClipboard.js";
 export { useRandomWords } from "./composables/useRandomWords.js";
 
 /**
+ * Composable untuk dark/light theme management
+ * @see {@link module:composables/useTheme}
+ */
+export { useTheme } from "./composables/useTheme.js";
+
+/**
+ * Composable untuk deteksi device type (mobile/tablet/desktop)
+ * @see {@link module:composables/useDevice}
+ */
+export { useDevice } from "./composables/useDevice.js";
+
+/**
  * Wrapper untuk mengakses instance event bus global
  * @see {@link module:wrapper/useEventBus}
  */

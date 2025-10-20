@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **useRandomWords**: Composable untuk menampilkan kata/kalimat secara random dengan dukungan filtering berdasarkan kategori
+- **useTheme**: Composable untuk dark/light theme management dengan localStorage persistence dan auto-detect system preference (Tailwind CSS v4)
+- **useDevice**: Composable untuk mendeteksi tipe device (mobile/tablet/desktop) berdasarkan window size dengan reactive state
 
 ## [0.0.3] - 2025-01-19
 

@@ -5,6 +5,8 @@ export { useTypewriter } from "./composables/useTypewriter";
 export { useSSE } from "./composables/useSSE";
 export { useClipboard } from "./composables/useClipboard";
 export { useRandomWords } from "./composables/useRandomWords";
+export { useTheme } from "./composables/useTheme";
+export { useDevice } from "./composables/useDevice";
 export { useEventBus } from "./wrapper/useEventBus";
 export { useFetch } from "./wrapper/useFetch";
 export { useAuthGuard } from "./wrapper/useAuthGuard";

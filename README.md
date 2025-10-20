@@ -17,7 +17,9 @@ Kumpulan composable dan wrapper utility untuk Vue 3
   - [useTypewriter](#usetypewriter)
   - [useSSE](#usesse)
   - [useClipboard](#useclipboard)
-  - [useRandomWords](#userandomwords)
+  - [useRandomWords](#userandomwords) 🆕
+  - [useTheme](#usetheme) 🆕
+  - [useDevice](#usedevice) 🆕
 - [🔧 Wrapper](#-wrapper)
   - [useEventBus](#useeventbus)
   - [useFetch](#usefetch)
@@ -605,7 +607,7 @@ Ideal untuk:
 - **Legacy Browsers** (IE11, older versions): execCommand fallback
 - **Mobile**: iOS Safari 13.4+, Chrome Android, Firefox Android
 
-### useRandomWords
+### useRandomWords 🆕
 
 Composable untuk menampilkan kata/kalimat secara random dari array dengan dukungan filtering berdasarkan kategori.
 
@@ -659,6 +661,265 @@ const { randomWord, randomItem } = useRandomWords([
 - **Flexible Input**: Support array string atau object dengan property text
 - **Manual Refresh**: Ganti kata random kapan saja dengan `refresh()`
 - **Full Data Access**: Akses data lengkap object via `randomItem`
+
+### useTheme 🆕
+
+Composable untuk dark/light theme management dengan localStorage persistence dan auto-detect system preference.
+
+> **⚠️ IMPORTANT:** Composable ini **hanya mendukung Tailwind CSS v4**. Untuk Tailwind v3 atau CSS framework lain, Anda perlu menyesuaikan implementasinya.
+
+```javascript
+import { useTheme } from "vue3-utils";
+import { onMounted } from "vue";
+
+// Basic usage
+const { isDark, initTheme, toggleTheme, watchSystemTheme } = useTheme();
+
+onMounted(() => {
+  initTheme(); // Deteksi preferensi sistem atau load dari localStorage
+  watchSystemTheme(); // Watch perubahan system theme
+});
+
+// Toggle theme
+// <button @click="toggleTheme">
+//   {{ isDark ? '☀️ Light Mode' : '🌙 Dark Mode' }}
+// </button>
+
+// Set theme manual
+const { setTheme } = useTheme();
+setTheme("dark"); // atau 'light'
+
+// Custom options
+const theme = useTheme({
+  storageKey: "my-app-theme", // default: 'theme'
+  attribute: "class", // default: 'class', bisa juga 'data-theme'
+  darkValue: "dark", // default: 'dark'
+  lightValue: "light", // default: 'light'
+});
+```
+
+#### Setup untuk Tailwind CSS v4
+
+**1. Tambahkan custom variant di `style.css`:**
+
+```css
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+```
+
+**2. Setup root dan dark class:**
+
+```css
+:root {
+  color: #213547;
+  background-color: #f5f5f5;
+}
+
+.dark {
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+}
+```
+
+**3. Gunakan di component:**
+
+```vue
+<template>
+  <div>
+    <!-- Toggle button -->
+    <button @click="toggleTheme" class="p-2 rounded-lg bg-gray-200 dark:bg-slate-800">
+      <span v-if="isDark">☀️ Light Mode</span>
+      <span v-else>🌙 Dark Mode</span>
+    </button>
+
+    <!-- Example dengan dark mode classes -->
+    <div class="bg-white dark:bg-slate-900 text-black dark:text-white">
+      <h1 class="text-gray-900 dark:text-gray-100">Hello World</h1>
+      <p class="text-gray-600 dark:text-gray-400">This is dark mode example</p>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { useTheme } from "vue3-utils";
+import { onMounted } from "vue";
+
+const { isDark, initTheme, toggleTheme, watchSystemTheme } = useTheme();
+
+onMounted(() => {
+  initTheme();
+  watchSystemTheme();
+});
+</script>
+```
+
+#### Parameter
+
+- `options` (object, opsional):
+  - `storageKey` (string, default: 'theme'): Key untuk menyimpan preferensi theme di localStorage
+  - `attribute` (string, default: 'class'): HTML attribute untuk apply theme ('class' atau 'data-theme')
+  - `darkValue` (string, default: 'dark'): Value untuk dark mode
+  - `lightValue` (string, default: 'light'): Value untuk light mode
+
+#### Return
+
+- `isDark` (ref): Reactive state indicating apakah dark mode aktif
+- `initTheme` (function): Initialize theme dari localStorage atau system preference
+- `toggleTheme` (function): Toggle antara light dan dark mode
+- `setTheme` (function): Set theme secara manual ('light' atau 'dark')
+- `watchSystemTheme` (function): Watch perubahan system theme preference
+
+#### Fitur
+
+- **Auto-detect System**: Otomatis deteksi preferensi dark/light mode dari sistem operasi
+- **localStorage Persistence**: Menyimpan preferensi user di localStorage
+- **System Theme Watcher**: Auto-update saat user ganti theme OS (jika belum ada preferensi manual)
+- **Tailwind CSS v4 Support**: Terintegrasi dengan `@custom-variant dark`
+- **Manual Override**: User preference override system preference
+- **Class Strategy**: Menggunakan `.dark` class di `<html>` element
+
+#### Cara Kerja
+
+1. **Pertama kali load app:**
+   - Cek `localStorage` untuk preferensi user
+   - Jika tidak ada, deteksi dari system preference (`prefers-color-scheme`)
+   - Apply class `.dark` ke `<html>` jika dark mode
+
+2. **User click toggle:**
+   - Switch theme
+   - Simpan preferensi ke `localStorage`
+   - Apply/remove class `.dark` dari `<html>`
+
+3. **User ganti theme OS:**
+   - Jika user belum set preferensi manual → auto follow system
+   - Jika user sudah set manual → tetap pakai preferensi user
+
+#### Use Case
+
+Ideal untuk:
+
+- SPA (Single Page Application) dengan dark/light mode
+- Dashboard atau admin panel
+- Blog atau documentation site
+- E-commerce platform
+- Portfolio website
+
+#### Browser Support
+
+- **Modern Browsers**: Chrome, Firefox, Safari, Edge (semua versi modern)
+- **localStorage**: Required (IE11+)
+- **prefers-color-scheme**: Chrome 76+, Firefox 67+, Safari 12.1+
+
+### useDevice 🆕
+
+Composable untuk mendeteksi tipe device (mobile/tablet/desktop) berdasarkan window size dengan reactive state.
+
+```javascript
+import { useDevice } from "vue3-utils";
+
+// Basic usage
+const { isMobile, isTablet, isDesktop } = useDevice();
+
+// Conditional rendering di template
+// <div v-if="isMobile">Mobile Menu</div>
+// <div v-else-if="isTablet">Tablet Menu</div>
+// <div v-else>Desktop Menu</div>
+
+// Conditional logic di script
+const loadContent = () => {
+  if (isMobile.value) {
+    // Load mobile optimized content
+    loadMobileImages();
+  } else if (isTablet.value) {
+    // Load tablet optimized content
+    loadTabletImages();
+  } else {
+    // Load desktop content
+    loadDesktopImages();
+  }
+};
+
+// Custom breakpoints
+const { isMobile, isTablet, isDesktop, width, height } = useDevice({
+  mobileBreakpoint: 640,  // sm breakpoint
+  tabletBreakpoint: 1280, // xl breakpoint
+});
+
+// Monitor window dimensions
+watch(width, (newWidth) => {
+  console.log(`Window width: ${newWidth}px`);
+});
+
+// Responsive layout component
+const { isMobile, isDesktop } = useDevice();
+
+const columns = computed(() => {
+  return isMobile.value ? 1 : isDesktop.value ? 3 : 2;
+});
+
+// <div :class="`grid grid-cols-${columns}`">...</div>
+
+// Conditional API calls
+const fetchData = async () => {
+  const { isMobile } = useDevice();
+  const limit = isMobile.value ? 5 : 20; // Mobile: load less items
+
+  const data = await fetch(`/api/items?limit=${limit}`);
+  return data;
+};
+```
+
+#### Parameter
+
+- `options` (object, opsional):
+  - `mobileBreakpoint` (number, default: 768): Breakpoint untuk mobile dalam pixels
+  - `tabletBreakpoint` (number, default: 1024): Breakpoint untuk tablet dalam pixels
+
+#### Return
+
+- `isMobile` (ref): Reactive state indicating apakah device mobile (width < mobileBreakpoint)
+- `isTablet` (ref): Reactive state indicating apakah device tablet (mobileBreakpoint ≤ width < tabletBreakpoint)
+- `isDesktop` (ref): Reactive state indicating apakah device desktop (width ≥ tabletBreakpoint)
+- `width` (ref): Reactive window width dalam pixels
+- `height` (ref): Reactive window height dalam pixels
+
+#### Breakpoint Logic
+
+Default breakpoints:
+- **Mobile**: width < 768px (isMobile: true)
+- **Tablet**: 768px ≤ width < 1024px (isTablet: true)
+- **Desktop**: width ≥ 1024px (isDesktop: true)
+
+Hanya satu state yang akan `true` pada satu waktu.
+
+#### Fitur
+
+- **Reactive**: Otomatis update saat window di-resize
+- **Throttled**: Resize event di-throttle 100ms untuk performa optimal
+- **Custom Breakpoints**: Bisa custom breakpoint sesuai kebutuhan
+- **Window Dimensions**: Access ke reactive width dan height
+- **SSR Safe**: Aman digunakan di environment SSR (Server-Side Rendering)
+- **Auto Cleanup**: Otomatis remove event listener saat component unmount
+- **Performance**: Hanya satu resize listener meskipun dipanggil berkali-kali
+
+#### Use Case
+
+Ideal untuk:
+
+- Responsive navigation menu (mobile hamburger vs desktop navbar)
+- Conditional image loading (mobile: thumbnail, desktop: full size)
+- Adaptive grid columns (1 col mobile, 2 col tablet, 3+ col desktop)
+- Device-specific API pagination (mobile: 5 items, desktop: 20 items)
+- Touch vs mouse interactions
+- Responsive modal/dialog positioning
+- Chart/visualization responsive sizing
+
+#### Browser Support
+
+- **Modern Browsers**: Chrome, Firefox, Safari, Edge (semua versi modern)
+- **window.innerWidth/innerHeight**: IE9+
+- **addEventListener**: IE9+
 
 ## 🔧 Wrapper
 
