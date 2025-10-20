@@ -17,9 +17,9 @@ Kumpulan composable dan wrapper utility untuk Vue 3
   - [useTypewriter](#usetypewriter)
   - [useSSE](#usesse)
   - [useClipboard](#useclipboard)
-  - [useRandomWords](#userandomwords) 🆕
-  - [useTheme](#usetheme) 🆕
-  - [useDevice](#usedevice) 🆕
+  - [useRandomWords 🆕](#userandomwords-)
+  - [useTheme 🆕](#usetheme-)
+  - [useDevice 🆕](#usedevice-)
 - [🔧 Wrapper](#-wrapper)
   - [useEventBus](#useeventbus)
   - [useFetch](#usefetch)
