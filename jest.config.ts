@@ -13,6 +13,8 @@ const config: Config = {
     '!src/**/*.d.ts',
     '!src/index.js',
     '!src/index.d.ts',
+    '!src/wrapper/useGoogleLogin.js',
+    '!src/wrapper/useFacebookLogin.js',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html', 'json-summary'],

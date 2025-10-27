@@ -98,3 +98,15 @@ export { useDateTime } from "./wrapper/useDateTime.js";
  * @see {@link module:wrapper/useCurrency}
  */
 export { useCurrency } from "./wrapper/useCurrency.js";
+
+/**
+ * Wrapper untuk Google Sign-In dengan auto SDK injection
+ * @see {@link module:wrapper/useGoogleLogin}
+ */
+export { useGoogleLogin } from "./wrapper/useGoogleLogin.js";
+
+/**
+ * Wrapper untuk Facebook Login dengan auto SDK injection
+ * @see {@link module:wrapper/useFacebookLogin}
+ */
+export { useFacebookLogin } from "./wrapper/useFacebookLogin.js";
