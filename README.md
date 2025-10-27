@@ -17,9 +17,9 @@ Kumpulan composable dan wrapper utility untuk Vue 3
   - [useTypewriter](#usetypewriter)
   - [useSSE](#usesse)
   - [useClipboard](#useclipboard)
-  - [useRandomWords 🆕](#userandomwords-)
-  - [useTheme 🆕](#usetheme-)
-  - [useDevice 🆕](#usedevice-)
+  - [useRandomWords](#userandomwords)
+  - [useTheme](#usetheme)
+  - [useDevice](#usedevice)
 - [🔧 Wrapper](#-wrapper)
   - [useEventBus](#useeventbus)
   - [useFetch](#usefetch)
@@ -27,6 +27,8 @@ Kumpulan composable dan wrapper utility untuk Vue 3
   - [useFetchServer](#usefetchserver)
   - [useDateTime](#usedatetime)
   - [useCurrency](#usecurrency)
+  - [useGoogleLogin 🆕](#usegooglelogin-)
+  - [useFacebookLogin 🆕](#usefacebooklogin-)
 - [📄 License](#-license)
 
 ## 📦 Instalasi
@@ -41,10 +43,10 @@ npm install github:ibnushahraa/vue3-utils
 
 ```bash
 # Install versi tertentu (recommended untuk production)
-npm install github:ibnushahraa/vue3-utils#v0.0.4
+npm install github:ibnushahraa/vue3-utils#v0.0.5
 
 # Atau dengan semver tag
-npm install github:ibnushahraa/vue3-utils#semver:^0.0.4
+npm install github:ibnushahraa/vue3-utils#semver:^0.0.5
 ```
 
 ### Update Library
@@ -63,7 +65,7 @@ npm install github:ibnushahraa/vue3-utils@latest
 
 ### Version Info
 
-Current version: **v0.0.4** (Pre-release)
+Current version: **v0.0.5** (Pre-release)
 
 Lihat [CHANGELOG.md](CHANGELOG.md) untuk detail perubahan setiap versi.
 
@@ -607,7 +609,7 @@ Ideal untuk:
 - **Legacy Browsers** (IE11, older versions): execCommand fallback
 - **Mobile**: iOS Safari 13.4+, Chrome Android, Firefox Android
 
-### useRandomWords 🆕
+### useRandomWords
 
 Composable untuk menampilkan kata/kalimat secara random dari array dengan dukungan filtering berdasarkan kategori.
 
@@ -662,7 +664,7 @@ const { randomWord, randomItem } = useRandomWords([
 - **Manual Refresh**: Ganti kata random kapan saja dengan `refresh()`
 - **Full Data Access**: Akses data lengkap object via `randomItem`
 
-### useTheme 🆕
+### useTheme
 
 Composable untuk dark/light theme management dengan localStorage persistence dan auto-detect system preference.
 
@@ -811,7 +813,7 @@ Ideal untuk:
 - **localStorage**: Required (IE11+)
 - **prefers-color-scheme**: Chrome 76+, Firefox 67+, Safari 12.1+
 
-### useDevice 🆕
+### useDevice
 
 Composable untuk mendeteksi tipe device (mobile/tablet/desktop) berdasarkan window size dengan reactive state.
 
@@ -1411,6 +1413,376 @@ Contoh format output:
 - `50000` → "Rp 50.000"
 - `1000000` → "Rp 1.000.000"
 - `15000000` → "Rp 15.000.000"
+
+### useGoogleLogin 🆕
+
+Wrapper untuk Google Sign-In dengan auto SDK injection. Ultra-simple API untuk implementasi Google OAuth dalam beberapa baris kode.
+
+```javascript
+import { useGoogleLogin } from "vue3-utils";
+
+// Basic usage
+const { login, isLoading, error } = useGoogleLogin({
+  clientId: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+  onSuccess: ({ credential, user }) => {
+    console.log("Login berhasil!", user);
+    // user: { id, email, name, picture, email_verified }
+  },
+  onError: (error) => {
+    console.error("Login gagal:", error);
+  },
+});
+
+// Trigger login (akan tampil Google popup)
+await login();
+
+// Gunakan di template
+// <button @click="login" :disabled="isLoading">
+//   <span v-if="isLoading">Loading...</span>
+//   <span v-else>Continue with Google</span>
+// </button>
+// <div v-if="error">Error: {{ error.message }}</div>
+
+// Advanced - handle user data
+const handleGoogleLogin = useGoogleLogin({
+  clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+  onSuccess: async ({ credential, user }) => {
+    // Send credential ke backend untuk verifikasi
+    const response = await fetch("/api/auth/google/callback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential }),
+    });
+
+    const data = await response.json();
+
+    // Simpan token
+    localStorage.setItem("accessToken", data.accessToken);
+    localStorage.setItem("refreshToken", data.refreshToken);
+
+    // Redirect atau update UI
+    router.push("/dashboard");
+  },
+  onError: (error) => {
+    if (error.message === "clientId is required") {
+      alert("Google Client ID tidak ditemukan");
+    } else {
+      alert("Login gagal, silakan coba lagi");
+    }
+  },
+});
+```
+
+#### Parameter
+
+- `config` (object):
+  - `clientId` (string, **required**): Google OAuth Client ID
+  - `onSuccess` (function, **required**): Callback saat login berhasil `({ credential, user }) => void`
+  - `onError` (function, opsional): Callback saat login gagal `(error) => void`
+
+#### Return
+
+- `login` (function): Fungsi untuk trigger Google login popup (async)
+- `isLoading` (ref): Reactive state untuk status loading
+- `error` (ref): Reactive error object jika ada error
+
+#### Success Response
+
+Callback `onSuccess` menerima object dengan struktur:
+
+```typescript
+{
+  credential: string, // JWT token dari Google
+  user: {
+    id: string,           // Google User ID
+    email: string,        // Email user
+    name: string,         // Nama lengkap
+    picture: string,      // URL foto profil
+    email_verified: boolean // Status verifikasi email
+  }
+}
+```
+
+#### Fitur
+
+- **Auto SDK Injection**: SDK Google otomatis di-inject saat composable dipanggil
+- **Singleton Pattern**: SDK hanya di-load sekali meskipun composable dipanggil berkali-kali
+- **Popup-based**: Menggunakan Google One Tap popup (tidak perlu redirect)
+- **Auto JWT Decode**: Otomatis decode JWT credential untuk mendapatkan user info
+- **Error Handling**: Built-in error handling dengan callback
+- **Loading State**: Reactive loading state untuk UI feedback
+- **TypeScript Support**: Full TypeScript definitions
+
+#### Setup
+
+**1. Dapatkan Google Client ID:**
+
+- Buka [Google Cloud Console](https://console.cloud.google.com/)
+- Buat project baru atau pilih project existing
+- Enable Google+ API
+- Buat OAuth 2.0 Client ID di Credentials
+- Tambahkan Authorized JavaScript origins (e.g., `http://localhost:5173`, `https://yourdomain.com`)
+
+**2. Setup di aplikasi:**
+
+```javascript
+// .env
+VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+
+// Component
+const { login } = useGoogleLogin({
+  clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+  onSuccess: (data) => console.log(data.user)
+});
+```
+
+#### Backend Integration
+
+Contoh backend untuk verify Google credential:
+
+```javascript
+// Node.js/Express
+app.post("/api/auth/google/callback", async (req, res) => {
+  const { credential } = req.body;
+
+  // Verify token dengan Google
+  const response = await fetch(
+    `https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`
+  );
+  const payload = await response.json();
+
+  if (payload.error) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+
+  // Find or create user
+  let user = await db.users.findOne({ google_id: payload.sub });
+  if (!user) {
+    user = await db.users.create({
+      google_id: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      picture: payload.picture,
+    });
+  }
+
+  // Generate your app tokens
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  res.json({ user, accessToken, refreshToken });
+});
+```
+
+#### Use Case
+
+Ideal untuk:
+
+- Social login di SPA
+- Quick registration/login flow
+- Authentication tanpa form
+- Multi-provider authentication (Google, Facebook, etc)
+- Mobile-friendly authentication
+
+### useFacebookLogin 🆕
+
+Wrapper untuk Facebook Login dengan auto SDK injection. Ultra-simple API untuk implementasi Facebook OAuth dalam beberapa baris kode.
+
+```javascript
+import { useFacebookLogin } from "vue3-utils";
+
+// Basic usage
+const { login, isLoading, error } = useFacebookLogin({
+  appId: "YOUR_FACEBOOK_APP_ID",
+  onSuccess: ({ accessToken, user }) => {
+    console.log("Login berhasil!", user);
+    // user: { id, email, name, picture }
+  },
+  onError: (error) => {
+    console.error("Login gagal:", error);
+  },
+});
+
+// Trigger login (akan tampil Facebook popup)
+await login();
+
+// Gunakan di template
+// <button @click="login" :disabled="isLoading">
+//   <span v-if="isLoading">Loading...</span>
+//   <span v-else>Continue with Facebook</span>
+// </button>
+// <div v-if="error">Error: {{ error.message }}</div>
+
+// Advanced - custom scope dan handle user data
+const handleFacebookLogin = useFacebookLogin({
+  appId: import.meta.env.VITE_FACEBOOK_APP_ID,
+  scope: "email,public_profile,user_birthday", // Custom permissions
+  onSuccess: async ({ accessToken, user }) => {
+    // Send accessToken dan user info ke backend
+    const response = await fetch("/api/auth/facebook/callback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accessToken, userInfo: user }),
+    });
+
+    const data = await response.json();
+
+    // Simpan token
+    localStorage.setItem("accessToken", data.accessToken);
+    localStorage.setItem("refreshToken", data.refreshToken);
+
+    // Redirect atau update UI
+    router.push("/dashboard");
+  },
+  onError: (error) => {
+    if (error.message === "Login cancelled") {
+      console.log("User membatalkan login");
+    } else if (error.message === "appId is required") {
+      alert("Facebook App ID tidak ditemukan");
+    } else {
+      alert("Login gagal, silakan coba lagi");
+    }
+  },
+});
+```
+
+#### Parameter
+
+- `config` (object):
+  - `appId` (string, **required**): Facebook App ID
+  - `onSuccess` (function, **required**): Callback saat login berhasil `({ accessToken, user }) => void`
+  - `onError` (function, opsional): Callback saat login gagal `(error) => void`
+  - `scope` (string, opsional, default: `'public_profile,email'`): Permissions yang diminta
+
+#### Return
+
+- `login` (function): Fungsi untuk trigger Facebook login popup (async)
+- `isLoading` (ref): Reactive state untuk status loading
+- `error` (ref): Reactive error object jika ada error
+
+#### Success Response
+
+Callback `onSuccess` menerima object dengan struktur:
+
+```typescript
+{
+  accessToken: string, // Facebook access token
+  user: {
+    id: string,        // Facebook User ID
+    email: string,     // Email user
+    name: string,      // Nama lengkap
+    picture: string | null // URL foto profil
+  }
+}
+```
+
+#### Fitur
+
+- **Auto SDK Injection**: Facebook SDK otomatis di-inject saat composable dipanggil
+- **Singleton Pattern**: SDK hanya di-load sekali meskipun composable dipanggil berkali-kali
+- **Popup-based**: Menggunakan FB.login() popup (tidak perlu redirect)
+- **Auto User Fetch**: Otomatis fetch user info (id, name, email, picture) setelah login
+- **Custom Permissions**: Support custom scope untuk request permission tambahan
+- **Error Handling**: Built-in error handling dengan callback
+- **Loading State**: Reactive loading state untuk UI feedback
+- **TypeScript Support**: Full TypeScript definitions
+
+#### Setup
+
+**1. Dapatkan Facebook App ID:**
+
+- Buka [Facebook Developers](https://developers.facebook.com/)
+- Buat app baru atau pilih app existing
+- Di Settings → Basic, copy App ID
+- Tambahkan App Domains (e.g., `localhost`, `yourdomain.com`)
+- Di Facebook Login → Settings, tambahkan Valid OAuth Redirect URIs
+
+**2. Setup di aplikasi:**
+
+```javascript
+// .env
+VITE_FACEBOOK_APP_ID=your-facebook-app-id
+
+// Component
+const { login } = useFacebookLogin({
+  appId: import.meta.env.VITE_FACEBOOK_APP_ID,
+  onSuccess: (data) => console.log(data.user)
+});
+```
+
+#### Permission Scopes
+
+Common Facebook permissions:
+
+- `public_profile` - Nama, foto profil (default)
+- `email` - Email address (default)
+- `user_birthday` - Tanggal lahir
+- `user_friends` - Daftar teman
+- `user_location` - Lokasi user
+- `user_posts` - Posts user
+
+**Note:** Beberapa permission memerlukan App Review dari Facebook.
+
+#### Backend Integration
+
+Contoh backend untuk verify Facebook access token:
+
+```javascript
+// Node.js/Express
+app.post("/api/auth/facebook/callback", async (req, res) => {
+  const { accessToken, userInfo } = req.body;
+
+  // Verify token dengan Facebook (optional)
+  const fbResponse = await fetch(
+    `https://graph.facebook.com/debug_token?input_token=${accessToken}&access_token=${FB_APP_ID}|${FB_APP_SECRET}`
+  );
+  const fbData = await fbResponse.json();
+
+  if (!fbData.data.is_valid) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+
+  // Find or create user
+  let user = await db.users.findOne({ facebook_id: userInfo.id });
+  if (!user) {
+    user = await db.users.create({
+      facebook_id: userInfo.id,
+      email: userInfo.email,
+      name: userInfo.name,
+      picture: userInfo.picture,
+    });
+  }
+
+  // Generate your app tokens
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  res.json({ user, accessToken, refreshToken });
+});
+```
+
+#### Error Cases
+
+Error yang bisa terjadi:
+
+- `appId is required` - App ID tidak diberikan
+- `Login cancelled` - User membatalkan login di popup
+- `Failed to load Facebook SDK` - SDK gagal di-load (network issue)
+
+#### Use Case
+
+Ideal untuk:
+
+- Social login di SPA
+- Quick registration/login flow
+- Authentication tanpa form
+- Multi-provider authentication (Facebook, Google, etc)
+- Mobile-friendly authentication
+
+#### Browser Support
+
+- **Modern Browsers**: Chrome, Firefox, Safari, Edge
+- **HTTPS Required**: Facebook SDK memerlukan HTTPS di production (localhost work dengan HTTP)
 
 ## 📄 License
 
