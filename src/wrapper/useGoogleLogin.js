@@ -82,6 +82,7 @@ export function useGoogleLogin({ clientId, onSuccess, onError } = {}) {
 
       window.google.accounts.id.initialize({
         client_id: clientId,
+        use_fedcm_for_prompt: false, // Disable FedCM to avoid browser compatibility issues
         callback: (response) => {
           isLoading.value = false
 
