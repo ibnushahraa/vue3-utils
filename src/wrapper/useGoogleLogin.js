@@ -86,6 +86,10 @@ export function useGoogleLogin({ clientId, onSuccess, onError } = {}) {
         callback: (response) => {
           isLoading.value = false
 
+          // Cleanup button container
+          const container = document.getElementById('google-signin-button-temp')
+          if (container) container.remove()
+
           // Decode credential untuk dapat user info
           const payload = JSON.parse(atob(response.credential.split('.')[1]))
 
@@ -102,10 +106,41 @@ export function useGoogleLogin({ clientId, onSuccess, onError } = {}) {
         }
       })
 
-      window.google.accounts.id.prompt()
+      // Use renderButton instead of prompt to avoid FedCM issues
+      // Create temporary container
+      const buttonContainer = document.createElement('div')
+      buttonContainer.id = 'google-signin-button-temp'
+      buttonContainer.style.display = 'none'
+      document.body.appendChild(buttonContainer)
+
+      // Render Google button
+      window.google.accounts.id.renderButton(buttonContainer, {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        text: 'continue_with',
+        shape: 'rectangular'
+      })
+
+      // Programmatically click the button
+      setTimeout(() => {
+        const googleButton = buttonContainer.querySelector('div[role="button"]')
+        if (googleButton) {
+          googleButton.click()
+        } else {
+          isLoading.value = false
+          buttonContainer.remove()
+          if (onError) onError(new Error('Failed to create Google sign-in button'))
+        }
+      }, 100)
     } catch (err) {
       error.value = err
       isLoading.value = false
+
+      // Cleanup button container if exists
+      const container = document.getElementById('google-signin-button-temp')
+      if (container) container.remove()
+
       if (onError) onError(err)
     }
   }

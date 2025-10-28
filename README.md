@@ -43,10 +43,10 @@ npm install github:ibnushahraa/vue3-utils
 
 ```bash
 # Install versi tertentu (recommended untuk production)
-npm install github:ibnushahraa/vue3-utils#v0.0.5
+npm install github:ibnushahraa/vue3-utils#v0.0.6
 
 # Atau dengan semver tag
-npm install github:ibnushahraa/vue3-utils#semver:^0.0.5
+npm install github:ibnushahraa/vue3-utils#semver:^0.0.6
 ```
 
 ### Update Library
@@ -65,7 +65,7 @@ npm install github:ibnushahraa/vue3-utils@latest
 
 ### Version Info
 
-Current version: **v0.0.5** (Pre-release)
+Current version: **v0.0.6** (Pre-release)
 
 Lihat [CHANGELOG.md](CHANGELOG.md) untuk detail perubahan setiap versi.
 

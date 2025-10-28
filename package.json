@@ -1,6 +1,6 @@
 {
   "name": "vue3-utils",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Vue 3 utility composables",
   "main": "src/index.js",
   "types": "src/index.d.ts",
